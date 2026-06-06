@@ -250,7 +250,7 @@ const HTML_PAGE = `<!DOCTYPE html>
   }
   .keyword-row {
     display: grid;
-    grid-template-columns: 1fr 140px 36px;
+    grid-template-columns: 1fr 140px 48px 36px;
     gap: 8px;
     margin-bottom: 6px;
     align-items: center;
@@ -371,7 +371,7 @@ const HTML_PAGE = `<!DOCTYPE html>
   }
   @media (max-width: 640px) {
     .form-row, .form-row-3, .form-row-4 { grid-template-columns: 1fr; }
-    .keyword-row { grid-template-columns: 1fr 100px 32px; }
+    .keyword-row { grid-template-columns: 1fr 100px 40px 32px; }
     .filters-grid { grid-template-columns: 1fr; }
     .card { padding: 20px 16px; }
   }
@@ -479,34 +479,110 @@ const HTML_PAGE = `<!DOCTYPE html>
 //  PubMed 检索策略构建器
 // ============================================================
 
+// ============================================================
+//  PubMed 全部字段标签
+// ============================================================
+
 const FIELD_LABELS = {
   'Title': '标题 [Title]',
   'Title/Abstract': '标题/摘要 [Title/Abstract]',
-  'MeSH': 'MeSH 主题词',
+  'Abstract': '摘要 [Abstract]',
+  'MeSH': 'MeSH 主题词 [MeSH Terms]',
   'MeSH Major': '主要 MeSH [MeSH Major Topic]',
+  'MeSH:noexp': 'MeSH 不扩展 [MeSH:noexp]',
+  'Text Word': '全文文本词 [Text Word]',
   'Journal': '期刊 [Journal]',
   'Author': '作者 [Author]',
   'Affiliation': '机构 [Affiliation]',
+  'Substance Name': '物质名称 [Substance Name]',
+  'Supplementary Concept': '补充概念 [Supplementary Concept]',
+  'Grant Number': '基金号 [Grant Number]',
+  'Publication Type': '出版类型 [Publication Type]',
+  'EC/RN Number': '酶代码/登记号 [EC/RN Number]',
+  'Pharmacological Action': '药理作用 [Pharmacological Action]',
+  'Investigator': '调查者 [Investigator]',
+  'Publisher': '出版商 [Publisher]',
+  'ISBN': 'ISBN [ISBN]',
+  'Location ID': '位置 ID [Location ID]',
+  'Secondary Source ID': '二次来源 ID [Secondary Source ID]',
   'All Fields': '所有字段 [All Fields]'
 };
 
 const FIELD_MAP = {
   'Title': '[Title]',
   'Title/Abstract': '[Title/Abstract]',
+  'Abstract': '[Abstract]',
   'MeSH': '[MeSH Terms]',
   'MeSH Major': '[MeSH Major Topic]',
+  'MeSH:noexp': '[MeSH:noexp]',
+  'Text Word': '[Text Word]',
   'Journal': '[Journal]',
   'Author': '[Author]',
   'Affiliation': '[Affiliation]',
+  'Substance Name': '[Substance Name]',
+  'Supplementary Concept': '[Supplementary Concept]',
+  'Grant Number': '[Grant Number]',
+  'Publication Type': '[Publication Type]',
+  'EC/RN Number': '[EC/RN Number]',
+  'Pharmacological Action': '[Pharmacological Action]',
+  'Investigator': '[Investigator]',
+  'Publisher': '[Publisher]',
+  'ISBN': '[ISBN]',
+  'Location ID': '[Location ID]',
+  'Secondary Source ID': '[Secondary Source ID]',
   'All Fields': ''
 };
 
+// ============================================================
+//  所有 PubMed 过滤条件
+// ============================================================
+
 const ARTICLE_TYPES = [
-  { id: 'review', label: '📋 综述 Review' },
-  { id: 'clinical-trial', label: '🔬 临床试验 Clinical Trial' },
-  { id: 'meta-analysis', label: '📊 Meta 分析' },
-  { id: 'randomized', label: '🎲 随机对照试验 RCT' },
-  { id: 'systematic-review', label: '📚 系统评价 Systematic Review' }
+  { id: 'review', label: '📋 Review' },
+  { id: 'clinical-trial', label: '🔬 Clinical Trial' },
+  { id: 'meta-analysis', label: '📊 Meta-Analysis' },
+  { id: 'randomized', label: '🎲 RCT' },
+  { id: 'systematic-review', label: '📚 Systematic Review' },
+  { id: 'observational-study', label: '👁 Observational Study' },
+  { id: 'case-reports', label: '📋 Case Reports' },
+  { id: 'comparative-study', label: '⚖️ Comparative Study' },
+  { id: 'editorial', label: '✏️ Editorial' },
+  { id: 'letter', label: '💌 Letter' },
+  { id: 'comment', label: '💬 Comment' },
+  { id: 'news', label: '📰 News' },
+  { id: 'guideline', label: '📋 Guideline' },
+  { id: 'consensus', label: '🤝 Consensus' }
+];
+
+const SPECIES_FILTERS = [
+  { id: 'human', label: '🧑 Human' },
+  { id: 'animal', label: '🐾 Animal' }
+];
+
+const SEX_FILTERS = [
+  { id: 'male', label: '♂ Male' },
+  { id: 'female', label: '♀ Female' }
+];
+
+const AGE_GROUPS = [
+  { id: 'all-infant', label: '👶 All Infant (0-23 months)' },
+  { id: 'all-child', label: '🧒 All Child (0-18)' },
+  { id: 'all-adult', label: '🧑 All Adult (19+)' },
+  { id: 'newborn', label: '👼 Newborn (birth-1 mo)' },
+  { id: 'infant', label: '👶 Infant (1-23 mo)' },
+  { id: 'preschool', label: '🧒 Preschool (2-5 yr)' },
+  { id: 'child', label: '🧒 Child (6-12 yr)' },
+  { id: 'adolescent', label: '🧑 Adolescent (13-18)' },
+  { id: 'adult', label: '🧑 Adult (19-44)' },
+  { id: 'middle-aged', label: '🧑 Middle Aged (45-64)' },
+  { id: 'aged', label: '👴 Aged (65+)' },
+  { id: '80plus', label: '👴 80 and over' }
+];
+
+const TEXT_AVAILABILITY = [
+  { id: 'abstract', label: '📄 Abstract available' },
+  { id: 'free-full-text', label: '🔓 Free full text' },
+  { id: 'full-text', label: '📖 Full text' }
 ];
 
 const FIELD_OPTIONS = Object.entries(FIELD_LABELS)
@@ -530,11 +606,16 @@ function buildPubMedQuery(strategy) {
       const fieldSuffix = FIELD_MAP[term.field] || '';
       const termText = term.term.trim();
 
-      // 判断是否需要引号（包含空格或通配符的需要引号，纯单词不需要）
-      const needsQuote = /[\\s\\(\\)\\*]/.test(termText);
+      // 判断是否需要引号（包含空格或通配符/运算符的需要引号）
+      const needsQuote = /[\s\(\)\*\[\]]/.test(termText);
       const quoted = needsQuote ? \`"\${termText}"\` : termText;
 
-      groupParts.push(quoted + fieldSuffix);
+      // 如果选择了 proximity 邻近搜索
+      if (term.proximity && term.proximity > 0) {
+        groupParts.push(\`\${quoted}\${fieldSuffix}:~\${term.proximity}\`);
+      } else {
+        groupParts.push(quoted + fieldSuffix);
+      }
     }
 
     if (groupParts.length > 0) {
@@ -549,33 +630,120 @@ function buildPubMedQuery(strategy) {
 
   if (parts.length === 0) return '';
 
-  // 添加文章类型过滤
   const filters = strategy.filters || {};
   let filterParts = [];
 
+  // 1. 文章类型过滤（Publication Type）
+  const TYPE_MAP = {
+    'review': \`"review"[Publication Type]\`,
+    'clinical-trial': \`"Clinical Trial"[Publication Type]\`,
+    'meta-analysis': \`"Meta-Analysis"[Publication Type]\`,
+    'randomized': \`"Randomized Controlled Trial"[Publication Type]\`,
+    'systematic-review': \`"Systematic Review"[Publication Type]\`,
+    'observational-study': \`"Observational Study"[Publication Type]\`,
+    'case-reports': \`"Case Reports"[Publication Type]\`,
+    'comparative-study': \`"Comparative Study"[Publication Type]\`,
+    'editorial': \`"Editorial"[Publication Type]\`,
+    'letter': \`"Letter"[Publication Type]\`,
+    'comment': \`"Comment"[Publication Type]\`,
+    'news': \`"News"[Publication Type]\`,
+    'guideline': \`"Guideline"[Publication Type]\`,
+    'consensus': \`"Consensus Development Conference"[Publication Type]\`
+  };
   if (filters.articleTypes && filters.articleTypes.length > 0) {
     for (const at of filters.articleTypes) {
-      const typeMap = {
-        'review': '"review"[Publication Type]',
-        'clinical-trial': '"Clinical Trial"[Publication Type]',
-        'meta-analysis': '"Meta-Analysis"[Publication Type]',
-        'randomized': '"Randomized Controlled Trial"[Publication Type]',
-        'systematic-review': '"Systematic Review"[Publication Type]'
-      };
-      if (typeMap[at]) filterParts.push(typeMap[at]);
+      if (TYPE_MAP[at]) filterParts.push(TYPE_MAP[at]);
     }
   }
 
+  // 2. 语种过滤（多语种）
   if (filters.languages && filters.languages.length > 0) {
     for (const lang of filters.languages) {
       if (lang === 'english') filterParts.push('english[Language]');
       if (lang === 'chinese') filterParts.push('chinese[Language]');
+      if (lang === 'french') filterParts.push('french[Language]');
+      if (lang === 'german') filterParts.push('german[Language]');
+      if (lang === 'japanese') filterParts.push('japanese[Language]');
+      if (lang === 'russian') filterParts.push('russian[Language]');
+      if (lang === 'spanish') filterParts.push('spanish[Language]');
     }
   }
 
+  // 3. 物种过滤（Human/Animal）
+  if (filters.species && filters.species.length > 0) {
+    const speciesParts = filters.species.map(s => {
+      if (s === 'human') return \`"humans"[MeSH Terms]\`;
+      if (s === 'animal') return \`"animals"[MeSH Terms]\`;
+      return '';
+    }).filter(Boolean);
+    if (filters.species.length === 1) {
+      filterParts.push(speciesParts[0]);
+    } else {
+      filterParts.push('(' + speciesParts.join(' OR ') + ')');
+    }
+  }
+
+  // 4. 性别过滤
+  if (filters.sex && filters.sex.length > 0) {
+    const sexParts = filters.sex.map(s => {
+      if (s === 'male') return \`"male"[MeSH Terms]\`;
+      if (s === 'female') return \`"female"[MeSH Terms]\`;
+      return '';
+    }).filter(Boolean);
+    if (sexParts.length > 0) {
+      filterParts.push('(' + sexParts.join(' OR ') + ')');
+    }
+  }
+
+  // 5. 年龄段过滤
+  if (filters.ageGroups && filters.ageGroups.length > 0) {
+    const AGE_MAP = {
+      'all-infant': \`"infant"[MeSH Terms]\`,
+      'all-child': \`"child"[MeSH Terms]\`,
+      'all-adult': \`"adult"[MeSH Terms]\`,
+      'newborn': \`"infant, newborn"[MeSH Terms]\`,
+      'infant': \`"infant"[MeSH Terms]\`,
+      'preschool': \`"child, preschool"[MeSH Terms]\`,
+      'child': \`"child"[MeSH Terms]\`,
+      'adolescent': \`"adolescent"[MeSH Terms]\`,
+      'adult': \`"adult"[MeSH Terms]\`,
+      'middle-aged': \`"middle aged"[MeSH Terms]\`,
+      'aged': \`"aged"[MeSH Terms]\`,
+      '80plus': \`"aged, 80 and over"[MeSH Terms]\`
+    };
+    for (const age of filters.ageGroups) {
+      if (AGE_MAP[age]) filterParts.push(AGE_MAP[age]);
+    }
+  }
+
+  // 6. 全文可用性过滤
+  if (filters.textAvailability && filters.textAvailability.length > 0) {
+    const TXT_MAP = {
+      'abstract': 'hasabstract[text]',
+      'free-full-text': 'free full text[sb]',
+      'full-text': 'hasfulltext[text]'
+    };
+    for (const ta of filters.textAvailability) {
+      if (TXT_MAP[ta]) filterParts.push(TXT_MAP[ta]);
+    }
+  }
+
+  // 7. 排除关键词
   if (filters.excludeTerms && filters.excludeTerms.trim()) {
     const ex = filters.excludeTerms.trim();
     filterParts.push(\`NOT (\${ex})\`);
+  }
+
+    // 9. 日期范围过滤
+  if (filters.dateFrom || filters.dateTo) {
+    const dFrom = filters.dateFrom || '1800';
+    const dTo = filters.dateTo || '2026';
+    filterParts.push(\`("\${dFrom}"[Date - Publication] : "\${dTo}"[Date - Publication])\`);
+  }
+
+// 8. 自定义附加过滤（高级用户直接输入 PubMed 语法）
+  if (filters.customFilter && filters.customFilter.trim()) {
+    filterParts.push(filters.customFilter.trim());
   }
 
   const mainQuery = parts.join(' ' + (strategy.operator || 'AND') + ' ');
@@ -586,7 +754,6 @@ function buildPubMedQuery(strategy) {
 
   return mainQuery;
 }
-
 /**
  * 渲染关键词行（单个 term）
  */
@@ -689,44 +856,76 @@ function rebuildFullQuery(root) {
  * 从 DOM 收集当前检索策略
  */
 function collectStrategyFromUI(root) {
-  const operatorSelect = root.querySelector('.strategy-operator');
+  const operatorSelect = root.querySelector(".strategy-operator");
   const strategy = {
-    operator: (operatorSelect && operatorSelect.value) || 'AND',
+    operator: (operatorSelect && operatorSelect.value) || "AND",
     groups: [],
     filters: {
       articleTypes: [],
       languages: [],
-      excludeTerms: ''
+      species: [],
+      sex: [],
+      ageGroups: [],
+      textAvailability: [],
+      excludeTerms: "",
+      customFilter: ""
     }
   };
 
-  // 收集过滤条件
-  root.querySelectorAll('.filter-chip.selected').forEach(chip => {
+  // 收集所有过滤条件
+  root.querySelectorAll(".filter-chip.selected").forEach(chip => {
     const type = chip.dataset.filterType;
     const val = chip.dataset.filterVal;
-    if (type === 'articleType') {
+    if (type === "articleType") {
       if (!strategy.filters.articleTypes.includes(val)) strategy.filters.articleTypes.push(val);
     }
-    if (type === 'language') {
+    if (type === "language") {
       if (!strategy.filters.languages.includes(val)) strategy.filters.languages.push(val);
     }
+    if (type === "species") {
+      if (!strategy.filters.species.includes(val)) strategy.filters.species.push(val);
+    }
+    if (type === "sex") {
+      if (!strategy.filters.sex.includes(val)) strategy.filters.sex.push(val);
+    }
+    if (type === "ageGroup") {
+      if (!strategy.filters.ageGroups.includes(val)) strategy.filters.ageGroups.push(val);
+    }
+    if (type === "textAvailability") {
+      if (!strategy.filters.textAvailability.includes(val)) strategy.filters.textAvailability.push(val);
+    }
   });
-  const excludeInput = root.querySelector('.filter-exclude-input');
+
+  const excludeInput = root.querySelector(".filter-exclude-input");
   if (excludeInput) strategy.filters.excludeTerms = excludeInput.value;
 
+  const customInput = root.querySelector(".filter-custom-input");
+  if (customInput) strategy.filters.customFilter = customInput.value;
+
+  // 收集日期范围
+  const dateFrom = root.querySelector(".date-from");
+  const dateTo = root.querySelector(".date-to");
+  if (dateFrom && dateFrom.value) strategy.filters.dateFrom = dateFrom.value;
+  if (dateTo && dateTo.value) strategy.filters.dateTo = dateTo.value;
+
   // 收集词组
-  const groups = root.querySelectorAll('.keyword-group');
+  const groups = root.querySelectorAll(".keyword-group");
   groups.forEach((groupEl, gi) => {
-    const groupOperator = groupEl.querySelector('.group-operator-select')?.value || 'OR';
+    const groupOperator = groupEl.querySelector(".group-operator-select")?.value || "OR";
     const terms = [];
-    groupEl.querySelectorAll('.keyword-row').forEach(row => {
-      const termInput = row.querySelector('.kw-input');
-      const fieldSelect = row.querySelector('.kw-field-select');
+    groupEl.querySelectorAll(".keyword-row").forEach(row => {
+      const termInput = row.querySelector(".kw-input");
+      const fieldSelect = row.querySelector(".kw-field-select");
+      const proxSelect = row.querySelector(".kw-proximity");
       if (termInput && termInput.value.trim()) {
-        terms.push({
+        const termObj = {
           term: termInput.value.trim(),
-          field: fieldSelect ? fieldSelect.value : 'Title/Abstract'
-        });
+          field: fieldSelect ? fieldSelect.value : "Title/Abstract"
+        };
+        if (proxSelect && proxSelect.value && parseInt(proxSelect.value) > 0) {
+          termObj.proximity = parseInt(proxSelect.value);
+        }
+        terms.push(termObj);
       }
     });
     if (terms.length > 0) {
@@ -808,20 +1007,82 @@ function addModule(data) {
       <div class="groups-container"></div>
       <button type="button" class="btn-sm" style="margin-top:6px" onclick="addGroup(this)">＋ 添加词组</button>
 
-      <!-- 高级过滤 -->
-      <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)">
-        <div class="section-label">🎯 高级过滤</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
-          \${ARTICLE_TYPES.map(at => \`<span class="filter-chip \${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.articleTypes && m.searchStrategy.filters.articleTypes.includes(at.id)) ? 'selected' : ''}" data-filter-type="articleType" data-filter-val="\${at.id}" onclick="toggleFilterChip(this)">\${at.label}</span>\`).join('')}
+            <!-- 全部 PubMed 过滤条件 ▸</summary>
+
+        <!-- 文章类型 -->
+        <div style="margin-bottom:10px">
+          <label style="font-size:11px;color:#777;margin-bottom:4px;display:block">📖 文章类型</label>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            \${ARTICLE_TYPES.map(at => \`<span class="filter-chip \${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.articleTypes && m.searchStrategy.filters.articleTypes.includes(at.id)) ? 'selected' : ''}" data-filter-type="articleType" data-filter-val="\${at.id}" onclick="toggleFilterChip(this)">\${at.label}</span>\`).join('')}
+          </div>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
-          <span class="filter-chip \${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.languages && m.searchStrategy.filters.languages.includes('english')) ? 'selected' : ''}" data-filter-type="language" data-filter-val="english" onclick="toggleFilterChip(this)">🇬🇧 仅英文</span>
+
+        <!-- 语种 -->
+        <div style="margin-bottom:10px">
+          <label style="font-size:11px;color:#777;margin-bottom:4px;display:block">🌍 语种</label>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            <span class="filter-chip \u0024{(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.languages && m.searchStrategy.filters.languages.includes('english')) ? 'selected' : ''}" data-filter-type="language" data-filter-val="english" onclick="toggleFilterChip(this)">🇬🇧 英文</span>
+            <span class="filter-chip \u0024{(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.languages && m.searchStrategy.filters.languages.includes('chinese')) ? 'selected' : ''}" data-filter-type="language" data-filter-val="chinese" onclick="toggleFilterChip(this)">🇨🇳 中文</span>
+            <span class="filter-chip \u0024{(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.languages && m.searchStrategy.filters.languages.includes('french')) ? 'selected' : ''}" data-filter-type="language" data-filter-val="french" onclick="toggleFilterChip(this)">🇫🇷 法文</span>
+            <span class="filter-chip \u0024{(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.languages && m.searchStrategy.filters.languages.includes('german')) ? 'selected' : ''}" data-filter-type="language" data-filter-val="german" onclick="toggleFilterChip(this)">🇩🇪 德文</span>
+            <span class="filter-chip \u0024{(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.languages && m.searchStrategy.filters.languages.includes('japanese')) ? 'selected' : ''}" data-filter-type="language" data-filter-val="japanese" onclick="toggleFilterChip(this)">🇯🇵 日文</span>
+            <span class="filter-chip \u0024{(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.languages && m.searchStrategy.filters.languages.includes('spanish')) ? 'selected' : ''}" data-filter-type="language" data-filter-val="spanish" onclick="toggleFilterChip(this)">🇪🇸 西班牙文</span>
+          </div>
         </div>
-        <div class="form-group" style="margin-bottom:0">
+
+        <!-- 物种 -->
+        <div style="margin-bottom:10px">
+          <label style="font-size:11px;color:#777;margin-bottom:4px;display:block">🐾 物种</label>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            \${SPECIES_FILTERS.map(s => \`<span class="filter-chip \${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.species && m.searchStrategy.filters.species.includes(s.id)) ? 'selected' : ''}" data-filter-type="species" data-filter-val="\${s.id}" onclick="toggleFilterChip(this)">\${s.label}</span>\`).join('')}
+          </div>
+        </div>
+
+        <!-- 性别 -->
+        <div style="margin-bottom:10px">
+          <label style="font-size:11px;color:#777;margin-bottom:4px;display:block">🦾 性别</label>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            \${SEX_FILTERS.map(s => \`<span class="filter-chip \${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.sex && m.searchStrategy.filters.sex.includes(s.id)) ? 'selected' : ''}" data-filter-type="sex" data-filter-val="\${s.id}" onclick="toggleFilterChip(this)">\${s.label}</span>\`).join('')}
+          </div>
+        </div>
+
+        <!-- 年龄段 -->
+        <div style="margin-bottom:10px">
+          <label style="font-size:11px;color:#777;margin-bottom:4px;display:block">👶 年龄段</label>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            \${AGE_GROUPS.map(a => \`<span class="filter-chip \${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.ageGroups && m.searchStrategy.filters.ageGroups.includes(a.id)) ? 'selected' : ''}" data-filter-type="ageGroup" data-filter-val="\${a.id}" onclick="toggleFilterChip(this)">\${a.label}</span>\`).join('')}
+          </div>
+        </div>
+
+        <!-- 全文可用性 -->
+        <div style="margin-bottom:10px">
+          <label style="font-size:11px;color:#777;margin-bottom:4px;display:block">📄 全文可用性</label>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            \${TEXT_AVAILABILITY.map(t => \`<span class="filter-chip \${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.textAvailability && m.searchStrategy.filters.textAvailability.includes(t.id)) ? 'selected' : ''}" data-filter-type="textAvailability" data-filter-val="\${t.id}" onclick="toggleFilterChip(this)">\${t.label}</span>\`).join('')}
+          </div>
+        </div>
+
+        <!-- 日期范围 -->
+        <div style="margin-bottom:10px">
+          <label style="font-size:11px;color:#777;margin-bottom:4px;display:block">📅 出版日期范围</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="date" class="date-from" style="flex:1;font-size:12px;padding:5px 8px" value="\${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.dateFrom) || ''}">
+            <span style="color:#666;font-size:12px">—</span>
+            <input type="date" class="date-to" style="flex:1;font-size:12px;padding:5px 8px" value="\${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.dateTo) || ''}">
+          </div>
+        </div>
+
+        <!-- 排除关键词 -->
+        <div class="form-group" style="margin-bottom:8px">
           <label>排除关键词 <span class="hint">(含这些词的论文将被过滤)</span></label>
           <input type="text" class="filter-exclude-input" placeholder="review, case report" style="font-size:13px;padding:7px 10px" value="\${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.excludeTerms) || ''}">
         </div>
-      </div>
+
+        <!-- 自定义附加过滤 -->
+        <div class="form-group" style="margin-bottom:0">
+          <label>🎯 自定义 PubMed 过滤语法 <span class="hint">(高级用户直接输入 PubMed 过滤语句)</span></label>
+          <input type="text" class="filter-custom-input" placeholder="例如: systematic[sb] AND 2023[dp]" style="font-size:13px;padding:7px 10px;font-family:monospace" value="\${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.customFilter) || ''}">
+        </div></div>
 
       <!-- 查询预览 -->
       <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)">
@@ -883,6 +1144,16 @@ function addModule(data) {
   if (excludeInput) {
     excludeInput.addEventListener('input', () => rebuildFullQuery(sb));
   }
+  
+  // 日期范围事件
+  const dateFrom = sb.querySelector('.date-from');
+  const dateTo = sb.querySelector('.date-to');
+  if (dateFrom) dateFrom.addEventListener('change', () => rebuildFullQuery(sb));
+  if (dateTo) dateTo.addEventListener('change', () => rebuildFullQuery(sb));
+  
+  // 自定义过滤输入事件
+  const customInput = sb.querySelector('.filter-custom-input');
+  if (customInput) customInput.addEventListener('input', () => rebuildFullQuery(sb));
 
   // 初次构建查询预览
   rebuildFullQuery(sb);
