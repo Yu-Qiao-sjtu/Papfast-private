@@ -17,42 +17,55 @@
 
 ## 🚀 快速开始
 
-### 1️⃣ 一键配置（Windows 推荐 ✅）
-
-**双击 `setup.bat`** — 全自动完成：
-
-```bash
-✔ 检测 Node.js（未安装则自动下载）
-✔ 安装依赖
-✔ 自动打开浏览器配置页面
-```
-
-浏览器中填写你的凭据，点击 **"保存配置"** 即可。
-
-### 2️⃣ 一键运行
-
-**双击 `start.bat`** — 立即检索论文并推送邮件。
-
-### 3️⃣ 命令行方式
+### 1️⃣ 下载项目
 
 ```bash
 git clone https://github.com/Yu-Qiao-sjtu/Papfast-private.git
 cd Papfast-private
+```
+
+### 2️⃣ 双击 `setup.bat` — 一键配置 ✅
+
+全自动完成（**无需任何命令行操作**）：
+
+```
+✔ 检测 Node.js 环境
+✔ 自动安装依赖
+✔ 浏览器自动打开配置页面
+✔ 填写你的密钥 → 点击保存
+```
+
+在浏览器中填写你的凭据：
+
+| 配置项 | 说明 |
+|-------|------|
+| 📧 **邮箱配置** | 你的邮箱 + SMTP 授权码 |
+| 🤖 **翻译 API** | 智谱 / DeepSeek / OpenAI 的 API Key |
+| 📊 **EasyScholar** | 期刊等级查询密钥（可选） |
+
+点击 **「💾 保存配置」**，配置自动写入本地文件，**不会上传到网络**。
+
+### 3️⃣ 双击 `start.bat` — 一键运行 🚀
+
+立即开始检索最新论文 → 翻译 → 查期刊等级 → 推送邮件。
+
+> 💡 **之后每天只需双击 `start.bat` 即可**，配置只需一次。
+
+---
+
+### 命令行方式（可选）
+
+如果你习惯用命令行：
+
+```bash
 npm install          # 安装依赖
 npm run setup        # 启动配置向导（浏览器自动打开）
 npm start            # 开始推送
 ```
 
-### 手动配置
+## ⚙️ GitHub Actions 部署（可选）
 
-也可以直接复制示例文件后编辑：
-
-```bash
-copy config\config.local.json.example config\config.local.json
-# 编辑填入你的 API Key 和邮箱配置
-```
-
-## ⚙️ GitHub Actions 部署
+如果你想定时自动运行，无需本地开机：
 
 1. Fork 此仓库
 2. 在 Settings → Secrets and variables → Actions 中添加：
@@ -73,8 +86,8 @@ copy config\config.local.json.example config\config.local.json
 
 ```
 Papfast-private/
-├── setup.bat                    # 一键安装 + 配置向导 ← 用户双击这个
-├── start.bat                    # 一键运行 ← 双击启动推送
+├── setup.bat                    # 一键安装 + 配置向导 ← 双击
+├── start.bat                    # 一键运行 ← 双击
 ├── config/
 │   ├── config.json              # 默认配置（占位符，安全可上传）
 │   └── config.local.json        # 你的真实配置（已 gitignore，不会上传）
@@ -92,9 +105,9 @@ Papfast-private/
 └── pubmed_fetcher.py            # Python 版主程序
 ```
 
-## 📝 配置说明
+## 📝 安全说明
 
-所有敏感信息（邮箱密码、API Key）只保存在本地的 `config.local.json` 中，该文件已加入 `.gitignore`，**不会上传到 GitHub**。
+所有敏感信息（邮箱密码、API Key）只保存在本地的 `config.local.json` 中，该文件已加入 `.gitignore`，**不会上传到 GitHub**。你可以放心公开此仓库。
 
 ## 📄 开源协议
 
