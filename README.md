@@ -17,34 +17,30 @@
 
 ## 🚀 快速开始
 
-### 1. 克隆
+### 1️⃣ 一键配置（Windows 推荐 ✅）
+
+**双击 `setup.bat`** — 全自动完成：
 
 ```bash
+✔ 检测 Node.js（未安装则自动下载）
+✔ 安装依赖
+✔ 自动打开浏览器配置页面
+```
+
+浏览器中填写你的凭据，点击 **"保存配置"** 即可。
+
+### 2️⃣ 一键运行
+
+**双击 `start.bat`** — 立即检索论文并推送邮件。
+
+### 3️⃣ 命令行方式
+
 ```bash
 git clone https://github.com/Yu-Qiao-sjtu/Papfast-private.git
 cd Papfast-private
-npm install
-```
-```
-
-### 2. 配置向导（推荐 ✅）
-
-```bash
-npm run setup
-```
-
-**浏览器会自动打开** 🎉，填写你的凭据：
-- 📧 **邮箱 SMTP 配置**（163/QQ/Gmail 等）
-- 🤖 **LLM API Key**（智谱/DeepSeek/OpenAI）
-- 📊 **EasyScholar 密钥**（可选，用于查期刊等级）
-- 📦 **推送模块**（关键词、收件人）
-
-点击 **"保存配置"** → 自动生成 `config.local.json`，关闭终端即可。
-
-### 3. 运行
-
-```bash
-npm start
+npm install          # 安装依赖
+npm run setup        # 启动配置向导（浏览器自动打开）
+npm start            # 开始推送
 ```
 
 ### 手动配置
@@ -52,9 +48,7 @@ npm start
 也可以直接复制示例文件后编辑：
 
 ```bash
-```bash
-cp config/config.local.json.example config/config.local.json
-```
+copy config\config.local.json.example config\config.local.json
 # 编辑填入你的 API Key 和邮箱配置
 ```
 
@@ -79,6 +73,8 @@ cp config/config.local.json.example config/config.local.json
 
 ```
 Papfast-private/
+├── setup.bat                    # 一键安装 + 配置向导 ← 用户双击这个
+├── start.bat                    # 一键运行 ← 双击启动推送
 ├── config/
 │   ├── config.json              # 默认配置（占位符，安全可上传）
 │   └── config.local.json        # 你的真实配置（已 gitignore，不会上传）
