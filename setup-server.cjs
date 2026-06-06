@@ -14,9 +14,11 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
+const { exec } = require('child_process');
 
 const PORT = 3456;
 const HOST = '127.0.0.1';
+const openUrl = `http://${HOST}:${PORT}`;
 
 // 文件路径
 const configDir = path.join(__dirname, 'config');
@@ -546,17 +548,26 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, HOST, () => {
-  const url = `http://${HOST}:${PORT}`;
   console.log('');
   console.log('╔══════════════════════════════════════════════╗');
   console.log('║        🔬 Papfast 配置向导已启动             ║');
   console.log('╠══════════════════════════════════════════════╣');
-  console.log(`║  ➜  打开浏览器访问:                         ║`);
-  console.log(`║       ${url}                  ║`);
+  console.log(`║  ➜  正在自动打开浏览器...                    ║`);
+  console.log(`║       ${openUrl}                  ║`);
   console.log('║                                            ║');
   console.log('║  填写你的 API 密钥和邮箱信息                ║');
   console.log('║  配置仅保存在 config.local.json             ║');
   console.log('║  按 Ctrl+C 停止服务器                       ║');
   console.log('╚══════════════════════════════════════════════╝');
   console.log('');
+
+  // 自动打开浏览器（跨平台）
+  const cmd = process.platform === 'win32' ? `start "" "${openUrl}"`
+    : process.platform === 'darwin' ? `open "${openUrl}"`
+    : `xdg-open "${openUrl}"`;
+  exec(cmd, (err) => {
+    if (err) {
+      console.log(`  ⚠️  未能自动打开浏览器，请手动访问 ${openUrl}`);
+    }
+  });
 });

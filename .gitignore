@@ -20,3 +20,9 @@ data/reports/
 
 # 已推送记录（本地缓存，无需同步）
 data/sent-papers.json
+
+# Node 依赖
+node_modules/
+
+# 备份文件
+*.bak

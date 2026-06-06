@@ -1,10 +1,11 @@
 {
   "name": "papfast",
   "version": "1.0.0",
-  "description": "肺泡巨噬细胞论文订阅工具",
+  "description": "PubMed 论文订阅与翻译邮件推送工具",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
+    "postinstall": "node -e \"console.log('\\n📌 首次使用请运行: npm run setup\\n')\"",
     "setup": "node setup-server.cjs",
     "start": "node src/index.js",
     "fetch": "node src/fetch.js",

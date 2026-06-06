@@ -41,10 +41,26 @@ function resolveConfig(configStr) {
 }
 
 // 加载配置：优先使用 config.local.json（本地测试），否则使用 config.json（GitHub Actions）
+const localConfigPath = join(__dirname, '../config/config.local.json');
 let configPath = join(__dirname, '../config/config.json');
-if (existsSync(join(__dirname, '../config/config.local.json'))) {
-  configPath = join(__dirname, '../config/config.local.json');
+if (existsSync(localConfigPath)) {
+  configPath = localConfigPath;
   console.log('[本地] 使用 config.local.json');
+}
+
+// 首次运行检测：检查本地配置文件是否存在且不含占位符
+const configTextPlaceholder = existsSync(localConfigPath) ? readFileSync(localConfigPath, 'utf-8') : '';
+if (!existsSync(localConfigPath) || configTextPlaceholder.includes('YOUR_') || configTextPlaceholder.includes('yourname@')) {
+  console.log('');
+  console.log('╔══════════════════════════════════════════════════════════╗');
+  console.log('║   🔧 首次使用？请先运行配置向导                        ║');
+  console.log('║                                                       ║');
+  console.log('║   npm run setup                                       ║');
+  console.log('║                                                       ║');
+  console.log('║   浏览器将自动打开，填写你的 API 密钥和邮箱信息即可    ║');
+  console.log('╚══════════════════════════════════════════════════════════╝');
+  console.log('');
+  process.exit(0);
 }
 
 const configText = readFileSync(configPath, 'utf-8');

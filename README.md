@@ -21,19 +21,19 @@ cd Papfast
 npm install
 ```
 
-### 2. 配置向导（推荐）
+### 2. 配置向导（推荐 ✅）
 
 ```bash
 npm run setup
 ```
 
-然后在浏览器打开 **http://127.0.0.1:3456**，填写你的凭据：
-- 📧 邮箱 SMTP 配置（163/QQ/Gmail 等）
-- 🤖 LLM API Key（智谱/DeepSeek/OpenAI）
-- 📊 EasyScholar 密钥（可选，用于查期刊等级）
-- 📦 推送模块（关键词、收件人）
+**浏览器会自动打开** 🎉，填写你的凭据：
+- 📧 **邮箱 SMTP 配置**（163/QQ/Gmail 等）
+- 🤖 **LLM API Key**（智谱/DeepSeek/OpenAI）
+- 📊 **EasyScholar 密钥**（可选，用于查期刊等级）
+- 📦 **推送模块**（关键词、收件人）
 
-点击保存 → 自动生成 `config.local.json`
+点击 **"保存配置"** → 自动生成 `config.local.json`，关闭终端即可。
 
 ### 3. 运行
 
