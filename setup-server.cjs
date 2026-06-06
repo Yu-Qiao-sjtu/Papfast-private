@@ -42,10 +42,7 @@ const HTML_PAGE = `<!DOCTYPE html>
     color: #e0e0e0;
     padding: 20px;
   }
-  .container {
-    max-width: 820px;
-    margin: 0 auto;
-  }
+  .container { max-width: 880px; margin: 0 auto; }
   .header {
     text-align: center;
     padding: 30px 0 20px;
@@ -57,11 +54,7 @@ const HTML_PAGE = `<!DOCTYPE html>
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  .header p {
-    color: #aaa;
-    margin-top: 8px;
-    font-size: 14px;
-  }
+  .header p { color: #aaa; margin-top: 8px; font-size: 14px; }
   .card {
     background: rgba(255,255,255,0.06);
     backdrop-filter: blur(12px);
@@ -79,14 +72,23 @@ const HTML_PAGE = `<!DOCTYPE html>
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
   }
   .card-title .icon { font-size: 20px; }
-  .form-group {
-    margin-bottom: 16px;
-  }
+  .form-group { margin-bottom: 16px; }
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .form-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  .form-row-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 16px;
   }
   label {
@@ -131,7 +133,6 @@ const HTML_PAGE = `<!DOCTYPE html>
     accent-color: #667eea;
   }
   .btn {
-    width: 100%;
     padding: 14px;
     border: none;
     border-radius: 12px;
@@ -141,6 +142,7 @@ const HTML_PAGE = `<!DOCTYPE html>
     transition: transform 0.15s, box-shadow 0.2s;
   }
   .btn-primary {
+    width: 100%;
     background: linear-gradient(135deg, #667eea, #764ba2);
     color: #fff;
   }
@@ -149,6 +151,7 @@ const HTML_PAGE = `<!DOCTYPE html>
     box-shadow: 0 8px 25px rgba(102,126,234,0.4);
   }
   .btn-success {
+    width: 100%;
     background: linear-gradient(135deg, #11998e, #38ef7d);
     color: #fff;
     margin-top: 10px;
@@ -157,6 +160,28 @@ const HTML_PAGE = `<!DOCTYPE html>
     transform: translateY(-1px);
     box-shadow: 0 8px 25px rgba(17,153,142,0.4);
   }
+  .btn-sm {
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-sm:hover { background: rgba(255,255,255,0.12); color: #fff; }
+  .btn-danger-sm {
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,82,82,0.3);
+    background: rgba(255,82,82,0.12);
+    color: #ff5252;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-danger-sm:hover { background: rgba(255,82,82,0.25); }
   .badge {
     display: inline-block;
     padding: 2px 10px;
@@ -166,14 +191,16 @@ const HTML_PAGE = `<!DOCTYPE html>
   }
   .badge-info { background: rgba(102,126,234,0.2); color: #667eea; }
   .badge-warn { background: rgba(255,183,77,0.15); color: #ffb74d; }
+  .badge-success { background: rgba(17,153,142,0.15); color: #38ef7d; }
+
+  /* 模块卡片 */
   .module-card {
     background: rgba(0,0,0,0.2);
     border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 12px;
+    padding: 20px;
+    margin-bottom: 14px;
     border: 1px solid rgba(255,255,255,0.06);
   }
-  .module-card .form-row { grid-template-columns: 1fr 1fr 80px; }
   .module-card .remove-btn {
     background: rgba(255,82,82,0.15);
     color: #ff5252;
@@ -182,8 +209,6 @@ const HTML_PAGE = `<!DOCTYPE html>
     padding: 8px 12px;
     cursor: pointer;
     font-size: 12px;
-    margin-top: 22px;
-    width: 100%;
     transition: background 0.2s;
   }
   .module-card .remove-btn:hover { background: rgba(255,82,82,0.3); }
@@ -199,6 +224,135 @@ const HTML_PAGE = `<!DOCTYPE html>
     transition: all 0.2s;
   }
   .add-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+  /* 检索策略构建器 */
+  .strategy-builder {
+    background: rgba(0,0,0,0.15);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 10px;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+  .strategy-builder .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+  .keyword-group {
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .keyword-row {
+    display: grid;
+    grid-template-columns: 1fr 140px 36px;
+    gap: 8px;
+    margin-bottom: 6px;
+    align-items: center;
+  }
+  .keyword-row .kw-term input { font-size: 13px; padding: 7px 10px; }
+  .keyword-row .kw-field select { font-size: 12px; padding: 7px 8px; }
+  .group-operator-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+    font-size: 12px;
+    color: #888;
+  }
+  .group-operator-bar .op-badge {
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .op-badge-and { background: rgba(102,126,234,0.2); color: #667eea; }
+  .op-badge-or { background: rgba(56,239,125,0.15); color: #38ef7d; }
+  .query-preview {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'Consolas','Courier New',monospace;
+    font-size: 12px;
+    color: #88ccff;
+    margin-top: 10px;
+    max-height: 120px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .query-preview .placeholder {
+    color: #555;
+    font-style: italic;
+  }
+
+  /* 高级过滤 */
+  .filters-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .filter-chip.selected {
+    background: rgba(102,126,234,0.2);
+    border-color: #667eea;
+    color: #667eea;
+  }
+  .filter-chip:hover { border-color: rgba(255,255,255,0.25); }
+
+  /* 快捷预设 */
+  .preset-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .preset-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .preset-btn:hover {
+    background: rgba(102,126,234,0.15);
+    border-color: #667eea;
+    color: #667eea;
+  }
+
+  .toggle-strategy-mode {
+    font-size: 12px;
+    color: #667eea;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+  .toggle-strategy-mode:hover { opacity: 1; }
+
   #status {
     text-align: center;
     margin-top: 12px;
@@ -216,7 +370,9 @@ const HTML_PAGE = `<!DOCTYPE html>
     font-size: 12px;
   }
   @media (max-width: 640px) {
-    .form-row { grid-template-columns: 1fr; }
+    .form-row, .form-row-3, .form-row-4 { grid-template-columns: 1fr; }
+    .keyword-row { grid-template-columns: 1fr 100px 32px; }
+    .filters-grid { grid-template-columns: 1fr; }
     .card { padding: 20px 16px; }
   }
 </style>
@@ -302,7 +458,7 @@ const HTML_PAGE = `<!DOCTYPE html>
     <!-- ====== 推送模块 ====== -->
     <div class="card">
       <div class="card-title"><span class="icon">📦</span> 推送模块 <span class="badge badge-info">必需</span></div>
-      <p style="font-size:13px;color:#888;margin-bottom:14px">每个模块定义一组关键词和收件人，可添加多个。</p>
+      <p style="font-size:13px;color:#888;margin-bottom:14px">每个模块定义一组检索策略和收件人，可添加多个。</p>
       <div id="modulesContainer">
         <!-- 由 JS 动态渲染 -->
       </div>
@@ -319,21 +475,295 @@ const HTML_PAGE = `<!DOCTYPE html>
 </div>
 
 <script>
-// ======== 默认模块模板 ========
-const defaultModule = {
-  name: '',
-  keywords: [''],
-  recipients: [''],
-  maxResults: 15,
-  daysBack: 7,
-  fallbackFromYear: 2020,
-  enabled: true
+// ============================================================
+//  PubMed 检索策略构建器
+// ============================================================
+
+const FIELD_LABELS = {
+  'Title': '标题 [Title]',
+  'Title/Abstract': '标题/摘要 [Title/Abstract]',
+  'MeSH': 'MeSH 主题词',
+  'MeSH Major': '主要 MeSH [MeSH Major Topic]',
+  'Journal': '期刊 [Journal]',
+  'Author': '作者 [Author]',
+  'Affiliation': '机构 [Affiliation]',
+  'All Fields': '所有字段 [All Fields]'
 };
+
+const FIELD_MAP = {
+  'Title': '[Title]',
+  'Title/Abstract': '[Title/Abstract]',
+  'MeSH': '[MeSH Terms]',
+  'MeSH Major': '[MeSH Major Topic]',
+  'Journal': '[Journal]',
+  'Author': '[Author]',
+  'Affiliation': '[Affiliation]',
+  'All Fields': ''
+};
+
+const ARTICLE_TYPES = [
+  { id: 'review', label: '📋 综述 Review' },
+  { id: 'clinical-trial', label: '🔬 临床试验 Clinical Trial' },
+  { id: 'meta-analysis', label: '📊 Meta 分析' },
+  { id: 'randomized', label: '🎲 随机对照试验 RCT' },
+  { id: 'systematic-review', label: '📚 系统评价 Systematic Review' }
+];
+
+const FIELD_OPTIONS = Object.entries(FIELD_LABELS)
+  .map(([k, v]) => \`<option value="\${k}">\${v}</option>\`).join('');
+
+/**
+ * 将检索策略对象构建为 PubMed 查询字符串
+ */
+function buildPubMedQuery(strategy) {
+  if (!strategy || !strategy.groups || strategy.groups.length === 0) return '';
+
+  const parts = [];
+
+  for (let gi = 0; gi < strategy.groups.length; gi++) {
+    const group = strategy.groups[gi];
+    if (!group.terms || group.terms.length === 0) continue;
+
+    const groupParts = [];
+    for (const term of group.terms) {
+      if (!term.term || term.term.trim() === '') continue;
+      const fieldSuffix = FIELD_MAP[term.field] || '';
+      const termText = term.term.trim();
+
+      // 判断是否需要引号（包含空格或通配符的需要引号，纯单词不需要）
+      const needsQuote = /[\\s\\(\\)\\*]/.test(termText);
+      const quoted = needsQuote ? \`"\${termText}"\` : termText;
+
+      groupParts.push(quoted + fieldSuffix);
+    }
+
+    if (groupParts.length > 0) {
+      const groupOperator = (group.groupOperator || 'OR').toUpperCase();
+      if (groupParts.length === 1) {
+        parts.push(groupParts[0]);
+      } else {
+        parts.push('(' + groupParts.join(' ' + groupOperator + ' ') + ')');
+      }
+    }
+  }
+
+  if (parts.length === 0) return '';
+
+  // 添加文章类型过滤
+  const filters = strategy.filters || {};
+  let filterParts = [];
+
+  if (filters.articleTypes && filters.articleTypes.length > 0) {
+    for (const at of filters.articleTypes) {
+      const typeMap = {
+        'review': '"review"[Publication Type]',
+        'clinical-trial': '"Clinical Trial"[Publication Type]',
+        'meta-analysis': '"Meta-Analysis"[Publication Type]',
+        'randomized': '"Randomized Controlled Trial"[Publication Type]',
+        'systematic-review': '"Systematic Review"[Publication Type]'
+      };
+      if (typeMap[at]) filterParts.push(typeMap[at]);
+    }
+  }
+
+  if (filters.languages && filters.languages.length > 0) {
+    for (const lang of filters.languages) {
+      if (lang === 'english') filterParts.push('english[Language]');
+      if (lang === 'chinese') filterParts.push('chinese[Language]');
+    }
+  }
+
+  if (filters.excludeTerms && filters.excludeTerms.trim()) {
+    const ex = filters.excludeTerms.trim();
+    filterParts.push(\`NOT (\${ex})\`);
+  }
+
+  const mainQuery = parts.join(' ' + (strategy.operator || 'AND') + ' ');
+
+  if (filterParts.length > 0) {
+    return '(' + mainQuery + ') AND ' + filterParts.join(' AND ');
+  }
+
+  return mainQuery;
+}
+
+/**
+ * 渲染关键词行（单个 term）
+ */
+function renderKeywordRow(term, groupEl) {
+  const row = document.createElement('div');
+  row.className = 'keyword-row';
+  row.innerHTML = \`
+    <div class="kw-term">
+      <input type="text" class="kw-input" placeholder="输入关键词" value="\${(term && term.term) || ''}">
+    </div>
+    <div class="kw-field">
+      <select class="kw-field-select">\${FIELD_OPTIONS}</select>
+    </div>
+    <div>
+      <button type="button" class="btn-danger-sm" style="padding:6px 10px;font-size:14px;width:36px;height:36px;display:flex;align-items:center;justify-content:center" onclick="this.closest('.keyword-row').remove();updateQueryPreview(this.closest('.keyword-group'))">✕</button>
+    </div>
+  \`;
+  if (term && term.field) {
+    row.querySelector('.kw-field-select').value = term.field;
+  }
+  // 输入变化时更新预览
+  row.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('change', () => updateQueryPreview(groupEl));
+    el.addEventListener('input', () => updateQueryPreview(groupEl));
+  });
+  return row;
+}
+
+/**
+ * 渲染一个关键词组
+ */
+function renderKeywordGroup(group, container) {
+  const groupEl = document.createElement('div');
+  groupEl.className = 'keyword-group';
+
+  const terms = (group && group.terms) || [{ term: '', field: 'Title/Abstract' }];
+
+  // 组内连接词（OR/AND）
+  const groupOperator = (group && group.groupOperator) || 'OR';
+
+  let html = \`
+    <div class="group-operator-bar">
+      <span>词组内连接：</span>
+      <select class="group-operator-select" style="width:auto;display:inline-block;padding:3px 10px;font-size:12px;border-radius:12px;">
+        <option value="OR" \${groupOperator === 'OR' ? 'selected' : ''}>OR（任一匹配）</option>
+        <option value="AND" \${groupOperator === 'AND' ? 'selected' : ''}>AND（全部匹配）</option>
+      </select>
+      <span style="flex:1"></span>
+      <button type="button" class="btn-danger-sm" style="padding:4px 10px;font-size:11px" onclick="removeKeywordGroup(this)">🗑 删除词组</button>
+    </div>
+    <div class="keyword-rows-container"></div>
+    <button type="button" class="btn-sm" style="margin-top:6px" onclick="addKeywordRow(this)">＋ 添加关键词</button>
+  \`;
+  groupEl.innerHTML = html;
+
+  const rowsContainer = groupEl.querySelector('.keyword-rows-container');
+  for (const term of terms) {
+    rowsContainer.appendChild(renderKeywordRow(term, groupEl));
+  }
+
+  // 组连接词变化时刷新预览
+  groupEl.querySelector('.group-operator-select').addEventListener('change', () => updateQueryPreview(groupEl));
+
+  container.appendChild(groupEl);
+  updateQueryPreview(groupEl);
+}
+
+/**
+ * 更新某个组的 PubMed 查询预览
+ */
+function updateQueryPreview(groupEl) {
+  const root = groupEl.closest('.strategy-builder');
+  if (!root) return;
+  rebuildFullQuery(root);
+}
+
+/**
+ * 重建完整查询并更新预览
+ */
+function rebuildFullQuery(root) {
+  const strategy = collectStrategyFromUI(root);
+  const query = buildPubMedQuery(strategy);
+  const preview = root.querySelector('.query-preview');
+  if (preview) {
+    if (query) {
+      preview.textContent = query;
+      preview.classList.remove('placeholder');
+    } else {
+      preview.innerHTML = '<span class="placeholder">请输入关键词以生成 PubMed 查询语句...</span>';
+    }
+  }
+  // 同步到隐藏的 textarea
+  const hiddenInput = root.closest('.module-card')?.querySelector('.mod-keywords');
+  if (hiddenInput) {
+    hiddenInput.value = query;
+  }
+}
+
+/**
+ * 从 DOM 收集当前检索策略
+ */
+function collectStrategyFromUI(root) {
+  const operatorSelect = root.querySelector('.strategy-operator');
+  const strategy = {
+    operator: (operatorSelect && operatorSelect.value) || 'AND',
+    groups: [],
+    filters: {
+      articleTypes: [],
+      languages: [],
+      excludeTerms: ''
+    }
+  };
+
+  // 收集过滤条件
+  root.querySelectorAll('.filter-chip.selected').forEach(chip => {
+    const type = chip.dataset.filterType;
+    const val = chip.dataset.filterVal;
+    if (type === 'articleType') {
+      if (!strategy.filters.articleTypes.includes(val)) strategy.filters.articleTypes.push(val);
+    }
+    if (type === 'language') {
+      if (!strategy.filters.languages.includes(val)) strategy.filters.languages.push(val);
+    }
+  });
+  const excludeInput = root.querySelector('.filter-exclude-input');
+  if (excludeInput) strategy.filters.excludeTerms = excludeInput.value;
+
+  // 收集词组
+  const groups = root.querySelectorAll('.keyword-group');
+  groups.forEach((groupEl, gi) => {
+    const groupOperator = groupEl.querySelector('.group-operator-select')?.value || 'OR';
+    const terms = [];
+    groupEl.querySelectorAll('.keyword-row').forEach(row => {
+      const termInput = row.querySelector('.kw-input');
+      const fieldSelect = row.querySelector('.kw-field-select');
+      if (termInput && termInput.value.trim()) {
+        terms.push({
+          term: termInput.value.trim(),
+          field: fieldSelect ? fieldSelect.value : 'Title/Abstract'
+        });
+      }
+    });
+    if (terms.length > 0) {
+      strategy.groups.push({ groupOperator, terms });
+    }
+  });
+
+  return strategy;
+}
+
+/** 添加关键词行到某个词组 */
+function addKeywordRow(btn) {
+  const groupEl = btn.closest('.keyword-group');
+  const rowsContainer = groupEl.querySelector('.keyword-rows-container');
+  rowsContainer.appendChild(renderKeywordRow({ term: '', field: 'Title/Abstract' }, groupEl));
+  updateQueryPreview(groupEl);
+}
+
+/** 删除整个词组 */
+function removeKeywordGroup(btn) {
+  const groupEl = btn.closest('.keyword-group');
+  const root = groupEl.closest('.strategy-builder');
+  groupEl.remove();
+  rebuildFullQuery(root);
+}
+
+// ============================================================
+//  模块管理
+// ============================================================
 
 let moduleCount = 0;
 
+/**
+ * 添加一个模块卡片到页面
+ */
 function addModule(data) {
-  const m = data || { ...defaultModule, name: \`模块 \${++moduleCount}\` };
+  const m = data || {};
   const container = document.getElementById('modulesContainer');
   const div = document.createElement('div');
   div.className = 'module-card';
@@ -342,19 +772,69 @@ function addModule(data) {
     <div class="form-row" style="grid-template-columns:1fr 1fr 80px">
       <div class="form-group">
         <label>模块名称</label>
-        <input type="text" class="mod-name" placeholder="示例模块 A" value="\${m.name || ''}">
+        <input type="text" class="mod-name" placeholder="例如：肿瘤免疫" value="\${m.name || '模块 ' + (++moduleCount)}">
       </div>
       <div class="form-group">
         <label>收件人邮箱</label>
         <input type="email" class="mod-recipients" placeholder="user@example.com" value="\${(m.recipients && m.recipients[0]) || ''}">
       </div>
-      <button type="button" class="remove-btn" onclick="this.closest('.module-card').remove()">✕ 删除</button>
+      <button type="button" class="remove-btn" style="margin-top:22px" onclick="this.closest('.module-card').remove()">✕ 删除</button>
     </div>
-    <div class="form-group">
-      <label>PubMed 检索关键词 <span class="hint">(支持 AND/OR, 可用 [Title]/[Journal] 等字段)</span></label>
-      <textarea class="mod-keywords" rows="3" placeholder='("alveolar macrophag*"[Title]) AND ("Nature"[Journal] OR ...)'>\${(m.keywords && m.keywords[0]) || ''}</textarea>
+
+    <!-- PubMed 检索策略构建器 -->
+    <div class="strategy-builder">
+      <div class="section-label">🔍 PubMed 检索策略</div>
+
+      <!-- 快捷预设 -->
+      <div class="preset-grid">
+        <button type="button" class="preset-btn" onclick="applyPreset('tumor-immunology', this)">🦠 肿瘤免疫</button>
+        <button type="button" class="preset-btn" onclick="applyPreset('neuro', this)">🧠 神经科学</button>
+        <button type="button" class="preset-btn" onclick="applyPreset('cardio', this)">❤️ 心血管</button>
+        <button type="button" class="preset-btn" onclick="applyPreset('cell-biology', this)">🔬 细胞生物学</button>
+        <button type="button" class="preset-btn" onclick="applyPreset('microbiome', this)">🦠 微生物组</button>
+        <button type="button" class="preset-btn" onclick="applyPreset('genetics', this)">🧬 遗传学</button>
+      </div>
+
+      <!-- 词组间连接 -->
+      <div class="group-operator-bar" style="margin-bottom:10px">
+        <span>词组间逻辑：</span>
+        <select class="strategy-operator" style="width:auto;display:inline-block;padding:4px 12px;font-size:12px;border-radius:12px;">
+          <option value="AND" \${(!m.searchStrategy || m.searchStrategy.operator === 'AND') ? 'selected' : ''}>AND（全部词组都需匹配）</option>
+          <option value="OR" \${(m.searchStrategy && m.searchStrategy.operator === 'OR') ? 'selected' : ''}>OR（任一词组匹配即可）</option>
+        </select>
+      </div>
+
+      <!-- 关键词组容器 -->
+      <div class="groups-container"></div>
+      <button type="button" class="btn-sm" style="margin-top:6px" onclick="addGroup(this)">＋ 添加词组</button>
+
+      <!-- 高级过滤 -->
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)">
+        <div class="section-label">🎯 高级过滤</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+          \${ARTICLE_TYPES.map(at => \`<span class="filter-chip \${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.articleTypes && m.searchStrategy.filters.articleTypes.includes(at.id)) ? 'selected' : ''}" data-filter-type="articleType" data-filter-val="\${at.id}" onclick="toggleFilterChip(this)">\${at.label}</span>\`).join('')}
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+          <span class="filter-chip \${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.languages && m.searchStrategy.filters.languages.includes('english')) ? 'selected' : ''}" data-filter-type="language" data-filter-val="english" onclick="toggleFilterChip(this)">🇬🇧 仅英文</span>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label>排除关键词 <span class="hint">(含这些词的论文将被过滤)</span></label>
+          <input type="text" class="filter-exclude-input" placeholder="review, case report" style="font-size:13px;padding:7px 10px" value="\${(m.searchStrategy && m.searchStrategy.filters && m.searchStrategy.filters.excludeTerms) || ''}">
+        </div>
+      </div>
+
+      <!-- 查询预览 -->
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)">
+        <div class="section-label">📋 生成的 PubMed 查询</div>
+        <div class="query-preview"><span class="placeholder">请输入关键词以生成 PubMed 查询语句...</span></div>
+      </div>
+
+      <!-- 隐藏字段，保存最终查询字符串 -->
+      <textarea class="mod-keywords" style="display:none"></textarea>
     </div>
-    <div class="form-row" style="grid-template-columns:1fr 1fr 1fr 1fr">
+
+    <!-- 模块参数 -->
+    <div class="form-row-4" style="margin-top:12px">
       <div class="form-group">
         <label>最大结果数</label>
         <input type="number" class="mod-maxResults" value="\${m.maxResults || 15}">
@@ -373,23 +853,195 @@ function addModule(data) {
       </div>
     </div>
   \`;
+
   container.appendChild(div);
+
+  // 初始化检索策略
+  const sb = div.querySelector('.strategy-builder');
+  const groupsContainer = sb.querySelector('.groups-container');
+
+  // 从已有数据恢复，或创建默认词组
+  let groups = [];
+  if (m.searchStrategy && m.searchStrategy.groups && m.searchStrategy.groups.length > 0) {
+    groups = m.searchStrategy.groups;
+  } else if (m.keywords && m.keywords[0]) {
+    // 已有纯文本关键词 → 尝试解析，如果失败则创建默认词组
+    groups = [{ groupOperator: 'OR', terms: [{ term: m.keywords[0], field: 'Title/Abstract' }] }];
+  } else {
+    groups = [{ groupOperator: 'OR', terms: [{ term: '', field: 'Title/Abstract' }] }];
+  }
+
+  for (const g of groups) {
+    renderKeywordGroup(g, groupsContainer);
+  }
+
+  // 连接词切换事件
+  sb.querySelector('.strategy-operator').addEventListener('change', () => rebuildFullQuery(sb));
+
+  // 排除词输入事件
+  const excludeInput = sb.querySelector('.filter-exclude-input');
+  if (excludeInput) {
+    excludeInput.addEventListener('input', () => rebuildFullQuery(sb));
+  }
+
+  // 初次构建查询预览
+  rebuildFullQuery(sb);
 }
 
-// 初始载入 1 个模块
+/** 添加新的词组 */
+function addGroup(btn) {
+  const root = btn.closest('.strategy-builder');
+  const groupsContainer = root.querySelector('.groups-container');
+  const group = { groupOperator: 'OR', terms: [{ term: '', field: 'Title/Abstract' }] };
+  renderKeywordGroup(group, groupsContainer);
+}
+
+/** 切换过滤标签 */
+function toggleFilterChip(el) {
+  el.classList.toggle('selected');
+  const root = el.closest('.strategy-builder');
+  rebuildFullQuery(root);
+}
+
+/** 应用快捷预设 */
+const PRESETS = {
+  'tumor-immunology': {
+    operator: 'AND',
+    groups: [
+      { groupOperator: 'OR', terms: [
+        { term: 'tumor microenvironment', field: 'Title/Abstract' },
+        { term: 'cancer immunology', field: 'Title/Abstract' },
+        { term: 'immune checkpoint', field: 'Title/Abstract' }
+      ]},
+      { groupOperator: 'OR', terms: [
+        { term: 'Nature', field: 'Journal' },
+        { term: 'Science', field: 'Journal' },
+        { term: 'Cell', field: 'Journal' },
+        { term: 'Immunity', field: 'Journal' }
+      ]}
+    ],
+    filters: { articleTypes: [], languages: ['english'], excludeTerms: '' }
+  },
+  'neuro': {
+    operator: 'AND',
+    groups: [
+      { groupOperator: 'OR', terms: [
+        { term: 'neurodegeneration', field: 'MeSH' },
+        { term: 'synaptic plasticity', field: 'Title/Abstract' },
+        { term: 'neuroinflammation', field: 'Title/Abstract' }
+      ]}
+    ],
+    filters: { articleTypes: ['review'], languages: ['english'], excludeTerms: '' }
+  },
+  'cardio': {
+    operator: 'AND',
+    groups: [
+      { groupOperator: 'OR', terms: [
+        { term: 'heart failure', field: 'Title/Abstract' },
+        { term: 'cardiac remodeling', field: 'Title/Abstract' },
+        { term: 'atherosclerosis', field: 'Title/Abstract' }
+      ]}
+    ],
+    filters: { articleTypes: [], languages: ['english'], excludeTerms: 'case report' }
+  },
+  'cell-biology': {
+    operator: 'AND',
+    groups: [
+      { groupOperator: 'OR', terms: [
+        { term: 'autophagy', field: 'Title/Abstract' },
+        { term: 'apoptosis', field: 'Title/Abstract' },
+        { term: 'cell signaling', field: 'Title/Abstract' }
+      ]}
+    ],
+    filters: { articleTypes: [], languages: ['english'], excludeTerms: '' }
+  },
+  'microbiome': {
+    operator: 'AND',
+    groups: [
+      { groupOperator: 'OR', terms: [
+        { term: 'gut microbiome', field: 'Title/Abstract' },
+        { term: 'intestinal microbiota', field: 'Title/Abstract' }
+      ]}
+    ],
+    filters: { articleTypes: [], languages: ['english'], excludeTerms: '' }
+  },
+  'genetics': {
+    operator: 'AND',
+    groups: [
+      { groupOperator: 'OR', terms: [
+        { term: 'GWAS', field: 'Title/Abstract' },
+        { term: 'genome-wide association', field: 'Title/Abstract' },
+        { term: 'polygenic risk', field: 'Title/Abstract' }
+      ]}
+    ],
+    filters: { articleTypes: [], languages: ['english'], excludeTerms: '' }
+  }
+};
+
+function applyPreset(name, btn) {
+  const preset = PRESETS[name];
+  if (!preset) return;
+
+  const root = btn.closest('.strategy-builder');
+  const groupsContainer = root.querySelector('.groups-container');
+
+  // 清空已有词组
+  groupsContainer.innerHTML = '';
+
+  // 设置 operator
+  const opSelect = root.querySelector('.strategy-operator');
+  if (opSelect) opSelect.value = preset.operator;
+
+  // 渲染词组
+  for (const group of preset.groups) {
+    renderKeywordGroup(group, groupsContainer);
+  }
+
+  // 设置过滤条件
+  const chips = root.querySelectorAll('.filter-chip');
+  chips.forEach(chip => {
+    const type = chip.dataset.filterType;
+    const val = chip.dataset.filterVal;
+    if (preset.filters) {
+      if (type === 'articleType' && preset.filters.articleTypes.includes(val)) {
+        chip.classList.add('selected');
+      } else if (type === 'language' && preset.filters.languages && preset.filters.languages.includes(val)) {
+        chip.classList.add('selected');
+      } else {
+        chip.classList.remove('selected');
+      }
+    }
+  });
+
+  const excludeInput = root.querySelector('.filter-exclude-input');
+  if (excludeInput && preset.filters) {
+    excludeInput.value = preset.filters.excludeTerms || '';
+  }
+
+  // 更新预览
+  rebuildFullQuery(root);
+}
+
+// 初始加载 1 个模块
 addModule();
 
-// ======== 表单提交 ========
+// ============================================================
+//  表单提交
+// ============================================================
 document.getElementById('configForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
-  // 收集模块数据
   const moduleCards = document.querySelectorAll('.module-card');
   const modules = [];
   moduleCards.forEach(card => {
+    const sb = card.querySelector('.strategy-builder');
+    const strategy = collectStrategyFromUI(sb);
+    const queryString = buildPubMedQuery(strategy);
+
     modules.push({
       name: card.querySelector('.mod-name').value.trim(),
-      keywords: [card.querySelector('.mod-keywords').value.trim()],
+      searchStrategy: strategy,
+      keywords: queryString ? [queryString] : [],
       recipients: [card.querySelector('.mod-recipients').value.trim()],
       maxResults: parseInt(card.querySelector('.mod-maxResults').value) || 15,
       daysBack: parseInt(card.querySelector('.mod-daysBack').value) || 7,
@@ -412,137 +1064,105 @@ document.getElementById('configForm').addEventListener('submit', async function(
     llm: {
       enabled: document.getElementById('llmEnabled').checked,
       provider: document.getElementById('llmProvider').value,
-      baseUrl: document.getElementById('llmBaseUrl').value.trim().replace(/\/+$/, '') + '/',
+      baseUrl: document.getElementById('llmBaseUrl').value.trim(),
       apiKey: document.getElementById('llmApiKey').value,
       model: document.getElementById('llmModel').value.trim()
     },
     easyScholarKey: document.getElementById('easyScholarKey').value.trim(),
-    modules: modules
+    modules: modules.filter(m => m.name && m.recipients[0])
   };
 
-  // 发送到服务器保存
+  // 验证
+  if (!config.email.smtp.user || !config.email.smtp.pass) {
+    showStatus('请填写邮箱地址和 SMTP 授权码', 'error');
+    return;
+  }
+  if (config.llm.enabled && !config.llm.apiKey) {
+    showStatus('翻译已启用，请填写 LLM API Key', 'error');
+    return;
+  }
+  if (config.modules.length === 0) {
+    showStatus('请至少添加一个推送模块', 'error');
+    return;
+  }
+
   try {
-    const resp = await fetch('/save', {
+    const res = await fetch('/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(config)
     });
-    const result = await resp.json();
-    const status = document.getElementById('status');
-    if (result.success) {
-      status.className = 'success';
-      status.innerHTML = '✅ 配置已保存！现在可以关闭此页面，运行 <code>node src/index.js</code> 启动推送。';
+    const data = await res.json();
+    if (data.success) {
+      showStatus('✅ 配置已保存到 config/config.local.json！可以关闭此页面了。', 'success');
     } else {
-      status.className = 'error';
-      status.textContent = '❌ 保存失败: ' + (result.error || '未知错误');
+      showStatus('❌ 保存失败: ' + (data.error || '未知错误'), 'error');
     }
   } catch (err) {
-    const status = document.getElementById('status');
-    status.className = 'error';
-    status.textContent = '❌ 网络错误: ' + err.message;
+    showStatus('❌ 保存失败: ' + err.message, 'error');
   }
 });
 
-// ======== 服务商切换 ========
-document.getElementById('llmProvider').addEventListener('change', function() {
-  const presets = {
-    zhipu: { url: 'https://open.bigmodel.cn/api/paas/v4/', model: 'glm-4-flash' },
-    deepseek: { url: 'https://api.deepseek.com', model: 'deepseek-chat' },
-    openai: { url: 'https://api.openai.com/v1/', model: 'gpt-4o-mini' },
-    custom: { url: '', model: '' }
-  };
-  const p = presets[this.value];
-  if (p) {
-    document.getElementById('llmBaseUrl').value = p.url;
-    if (p.model) document.getElementById('llmModel').value = p.model;
-  }
-});
+function showStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = type;
+}
 </script>
 </body>
 </html>`;
 
-// ======================== HTTP 服务器 ========================
+// ======================== 服务器逻辑 ========================
 
-const server = http.createServer(async (req, res) => {
-  const parsed = new URL(req.url, `http://${HOST}:${PORT}`);
-  const pathname = parsed.pathname;
+const server = http.createServer((req, res) => {
+  const parsedUrl = new URL(req.url, `http://${HOST}:${PORT}`);
+  const pathname = parsedUrl.pathname;
+  const method = req.method;
 
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
+  if (method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
     return;
   }
 
-  // GET / → HTML 配置页面
-  if (req.method === 'GET' && (pathname === '/' || pathname === '/index.html')) {
+  if (method === 'GET' && (pathname === '/' || pathname === '')) {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(HTML_PAGE);
     return;
   }
 
-  // GET /config → 返回当前配置（供页面预填充）
-  if (req.method === 'GET' && pathname === '/config') {
-    try {
-      const raw = fs.readFileSync(localConfigPath, 'utf-8');
-      const config = JSON.parse(raw);
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify({ success: true, config }));
-    } catch {
-      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify({ success: true, config: null }));
-    }
-    return;
-  }
-
-  // POST /save → 保存配置
-  if (req.method === 'POST' && pathname === '/save') {
+  if (method === 'POST' && pathname === '/save') {
     let body = '';
     req.on('data', chunk => body += chunk);
     req.on('end', () => {
       try {
         const config = JSON.parse(body);
-
-        // 验证必填字段
-        const errors = [];
-        if (!config.email?.smtp?.user) errors.push('邮箱地址不能为空');
-        if (!config.email?.smtp?.pass) errors.push('SMTP 授权码不能为空');
-        if (config.llm?.enabled && !config.llm?.apiKey) errors.push('LLM API Key 不能为空（或关闭翻译）');
-        if (!config.modules?.length) errors.push('至少需要一个推送模块');
-        if (config.modules?.some(m => !m.name || !m.recipients?.[0] || !m.keywords?.[0])) {
-          errors.push('每个模块的名称、收件人、关键词不能为空');
-        }
-
-        if (errors.length) {
-          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({ success: false, error: errors.join('；') }));
-          return;
-        }
-
+        
         // 确保 config 目录存在
         if (!fs.existsSync(configDir)) {
           fs.mkdirSync(configDir, { recursive: true });
         }
 
-        // 漂亮写入
-        fs.writeFileSync(localConfigPath, JSON.stringify(config, null, 4), 'utf-8');
-        console.log(`[${new Date().toLocaleTimeString()}] ✅ 配置已保存`);
-
-        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        // 写入 config.local.json（美化输出）
+        fs.writeFileSync(localConfigPath, JSON.stringify(config, null, 2), 'utf-8');
+        console.log('\n[配置] ✅ 已保存到 config/config.local.json');
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true }));
       } catch (err) {
-        res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+        console.error('[配置] ❌ 保存失败:', err.message);
+        res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: false, error: err.message }));
       }
     });
     return;
   }
 
-  // 404
   res.writeHead(404);
   res.end('Not Found');
 });
@@ -553,21 +1173,22 @@ server.listen(PORT, HOST, () => {
   console.log('║        🔬 Papfast 配置向导已启动             ║');
   console.log('╠══════════════════════════════════════════════╣');
   console.log(`║  ➜  正在自动打开浏览器...                    ║`);
-  console.log(`║       ${openUrl}                  ║`);
-  console.log('║                                            ║');
-  console.log('║  填写你的 API 密钥和邮箱信息                ║');
-  console.log('║  配置仅保存在 config.local.json             ║');
-  console.log('║  按 Ctrl+C 停止服务器                       ║');
+  console.log(`║      http://${HOST}:${PORT}                  ║`);
   console.log('╚══════════════════════════════════════════════╝');
   console.log('');
 
-  // 自动打开浏览器（跨平台）
-  const cmd = process.platform === 'win32' ? `start "" "${openUrl}"`
-    : process.platform === 'darwin' ? `open "${openUrl}"`
-    : `xdg-open "${openUrl}"`;
-  exec(cmd, (err) => {
+  // 尝试自动打开浏览器
+  const startCmd = process.platform === 'win32'
+    ? `start http://${HOST}:${PORT}`
+    : process.platform === 'darwin'
+      ? `open http://${HOST}:${PORT}`
+      : `xdg-open http://${HOST}:${PORT}`;
+
+  exec(startCmd, (err) => {
     if (err) {
-      console.log(`  ⚠️  未能自动打开浏览器，请手动访问 ${openUrl}`);
+      console.log(`  浏览器未自动打开，请手动访问:`);
+      console.log(`  →  http://${HOST}:${PORT}`);
+      console.log('');
     }
   });
 });

@@ -1,36 +1,62 @@
 {
-    "email":  {
-                  "from":  "yourname@163.com",
-                  "smtp":  {
-                               "port":  465,
-                               "host":  "smtp.163.com",
-                               "secure":  true,
-                               "user":  "yourname@163.com",
-                               "pass":  "YOUR_SMTP_AUTH_CODE"
-                           }
-              },
-    "easyScholarKey":  "YOUR_EASYSCHOLAR_KEY",
-    "llm":  {
-                "baseUrl":  "https://open.bigmodel.cn/api/paas/v4/",
-                "provider":  "zhipu",
-                "model":  "glm-4-flash",
-                "apiKey":  "YOUR_LLM_API_KEY",
-                "enabled":  true
-            },
-    "modules":  [
-                    {
-                        "fallbackFromYear":  2020,
-                        "keywords":  [
-                                         "(\"alveolar macrophag*\"[Title]) AND (\"Nature\"[Journal] OR \"Science\"[Journal] OR \"Cell\"[Journal])"
-                                     ],
-                        "fallbackMaxResults":  10,
-                        "name":  "示例模块 A",
-                        "maxResults":  15,
-                        "enabled":  true,
-                        "recipients":  [
-                                           "yourname@example.com"
-                                       ],
-                        "daysBack":  7
-                    }
-                ]
+  "email": {
+    "smtp": {
+      "host": "${SMTP_HOST}",
+      "port": "${SMTP_PORT}",
+      "secure": true,
+      "user": "${SMTP_USER}",
+      "pass": "${SMTP_PASS}"
+    },
+    "from": "${SMTP_USER}"
+  },
+  "llm": {
+    "enabled": true,
+    "provider": "zhipu",
+    "baseUrl": "https://open.bigmodel.cn/api/paas/v4/",
+    "apiKey": "${LLM_API_KEY}",
+    "model": "glm-4-flash"
+  },
+  "easyScholarKey": "${EASYSCHOLAR_KEY}",
+  "modules": [
+    {
+      "name": "示例模块 A",
+      "searchStrategy": {
+        "operator": "AND",
+        "groups": [
+          {
+            "groupOperator": "OR",
+            "terms": [
+              { "term": "tumor microenvironment", "field": "Title/Abstract" },
+              { "term": "cancer immunology", "field": "Title/Abstract" },
+              { "term": "immune checkpoint", "field": "Title/Abstract" }
+            ]
+          },
+          {
+            "groupOperator": "OR",
+            "terms": [
+              { "term": "Nature", "field": "Journal" },
+              { "term": "Science", "field": "Journal" },
+              { "term": "Cell", "field": "Journal" },
+              { "term": "Immunity", "field": "Journal" },
+              { "term": "J Exp Med", "field": "Journal" },
+              { "term": "Cancer Cell", "field": "Journal" }
+            ]
+          }
+        ],
+        "filters": {
+          "articleTypes": [],
+          "languages": ["english"],
+          "excludeTerms": ""
+        }
+      },
+      "keywords": [
+        "(\"tumor microenvironment\"[Title/Abstract] OR \"cancer immunology\"[Title/Abstract] OR \"immune checkpoint\"[Title/Abstract]) AND (\"Nature\"[Journal] OR \"Science\"[Journal] OR \"Cell\"[Journal] OR \"Immunity\"[Journal] OR \"J Exp Med\"[Journal] OR \"Cancer Cell\"[Journal]) AND english[Language]"
+      ],
+      "recipients": ["yourname@example.com"],
+      "maxResults": 5,
+      "daysBack": 7,
+      "fallbackFromYear": 2020,
+      "enabled": true
+    }
+  ]
 }
