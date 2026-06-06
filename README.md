@@ -2,6 +2,10 @@
 
 自动从 PubMed 检索顶刊文献，翻译并邮件推送。
 
+## 🙏 致谢
+
+本项目由 [WispTerm](https://github.com/xuzhougeng/wispterm) AI Agent 辅助开发完成。
+
 ## ✨ 功能
 
 - 🔍 **PubMed 自动检索** — 按关键词/期刊每日搜索最新论文
@@ -91,10 +95,6 @@ Papfast/
 ## 📝 配置说明
 
 所有敏感信息（邮箱密码、API Key）只保存在本地的 `config.local.json` 中，该文件已加入 `.gitignore`，**不会上传到 GitHub**。
-
-## 🙏 致谢
-
-本项目由 [WispTerm](https://github.com/xuzhougeng/wispterm) AI Agent 辅助开发完成。
 
 ## 📄 开源协议
 
