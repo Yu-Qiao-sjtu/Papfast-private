@@ -92,6 +92,10 @@ Papfast/
 
 所有敏感信息（邮箱密码、API Key）只保存在本地的 `config.local.json` 中，该文件已加入 `.gitignore`，**不会上传到 GitHub**。
 
+## 🙏 致谢
+
+本项目由 [WispTerm](https://github.com/xuzhougeng/wispterm) AI Agent 辅助开发完成。
+
 ## 📄 开源协议
 
 MIT
