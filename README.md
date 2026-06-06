@@ -20,9 +20,11 @@
 ### 1. 克隆
 
 ```bash
-git clone https://github.com/你的用户名/Papfast.git
-cd Papfast
+```bash
+git clone https://github.com/Yu-Qiao-sjtu/Papfast-private.git
+cd Papfast-private
 npm install
+```
 ```
 
 ### 2. 配置向导（推荐 ✅）
@@ -50,7 +52,9 @@ npm start
 也可以直接复制示例文件后编辑：
 
 ```bash
+```bash
 cp config/config.local.json.example config/config.local.json
+```
 # 编辑填入你的 API Key 和邮箱配置
 ```
 
@@ -74,7 +78,7 @@ cp config/config.local.json.example config/config.local.json
 ## 🧩 项目结构
 
 ```
-Papfast/
+Papfast-private/
 ├── config/
 │   ├── config.json              # 默认配置（占位符，安全可上传）
 │   └── config.local.json        # 你的真实配置（已 gitignore，不会上传）
