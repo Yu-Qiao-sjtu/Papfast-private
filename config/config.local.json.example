@@ -1,0 +1,36 @@
+{
+    "email":  {
+                  "from":  "yourname@163.com",
+                  "smtp":  {
+                               "port":  465,
+                               "host":  "smtp.163.com",
+                               "secure":  true,
+                               "user":  "yourname@163.com",
+                               "pass":  "YOUR_SMTP_AUTH_CODE"
+                           }
+              },
+    "easyScholarKey":  "YOUR_EASYSCHOLAR_KEY",
+    "llm":  {
+                "baseUrl":  "https://open.bigmodel.cn/api/paas/v4/",
+                "provider":  "zhipu",
+                "model":  "glm-4-flash",
+                "apiKey":  "YOUR_LLM_API_KEY",
+                "enabled":  true
+            },
+    "modules":  [
+                    {
+                        "fallbackFromYear":  2020,
+                        "keywords":  [
+                                         "(\"alveolar macrophag*\"[Title]) AND (\"Nature\"[Journal] OR \"Science\"[Journal] OR \"Cell\"[Journal])"
+                                     ],
+                        "fallbackMaxResults":  10,
+                        "name":  "示例模块 A",
+                        "maxResults":  15,
+                        "enabled":  true,
+                        "recipients":  [
+                                           "yourname@example.com"
+                                       ],
+                        "daysBack":  7
+                    }
+                ]
+}

@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+pubmed.log
+.env
+state_*.json
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 本地配置文件（包含敏感信息，不上传到 GitHub）
+config/config.local.json
+
+# Mac 系统文件
+.DS_Store
+Thumbs.db
+
+# 运行报告输出
+data/reports/
+
+# 已推送记录（本地缓存，无需同步）
+data/sent-papers.json
