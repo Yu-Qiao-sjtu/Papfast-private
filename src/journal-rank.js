@@ -5,12 +5,14 @@
 
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import config from './config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const EASYSCHOLAR_API = 'https://www.easyscholar.cc/open/getPublicationRank';
+const CACHE_FILE = join(__dirname, '../data/journal-cache.json');
 
 // 从公共配置模块获取 EasyScholar Key
 const SECRET_KEY = config.easyScholarKey || process.env.EASYSCHOLAR_KEY || '';
@@ -18,6 +20,48 @@ const SECRET_KEY = config.easyScholarKey || process.env.EASYSCHOLAR_KEY || '';
 // 请求限流：每秒最多2次
 let lastRequestTime = 0;
 const MIN_INTERVAL = 550; // 550ms 间隔
+
+// ============ 缓存持久化 ============
+
+/**
+ * 内存缓存 Map（启动时从文件加载，查询后写回文件）
+ */
+const cache = new Map();
+
+/**
+ * 启动时从文件加载缓存
+ */
+function loadCacheFromFile() {
+  if (!existsSync(CACHE_FILE)) return;
+  try {
+    const data = JSON.parse(readFileSync(CACHE_FILE, 'utf-8'));
+    if (data && typeof data === 'object') {
+      for (const [key, value] of Object.entries(data)) {
+        cache.set(key, value);
+      }
+      console.log(`[easyScholar] 加载 ${cache.size} 条期刊缓存`);
+    }
+  } catch (e) {
+    console.warn('[easyScholar] 缓存文件损坏，将重新查询:', e.message);
+  }
+}
+
+/**
+ * 将缓存写入文件
+ */
+function saveCacheToFile() {
+  try {
+    const dir = join(__dirname, '../data');
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    const obj = Object.fromEntries(cache);
+    writeFileSync(CACHE_FILE, JSON.stringify(obj, null, 2), 'utf-8');
+  } catch (e) {
+    console.warn('[easyScholar] 缓存保存失败:', e.message);
+  }
+}
+
+// 启动时加载缓存
+loadCacheFromFile();
 
 /**
  * 获取期刊等级信息
@@ -139,17 +183,18 @@ function parseJournalRank(data, journalName) {
 }
 
 /**
- * 批量获取期刊等级（带缓存）
+ * 批量获取期刊等级（带缓存 + 持久化）
  */
-const cache = new Map();
-
 export async function getJournalRanks(journals) {
   const results = new Map();
+  let cacheHits = 0;
+  let newQueries = 0;
   
   for (const journal of journals) {
     // 检查缓存
     if (cache.has(journal)) {
       results.set(journal, cache.get(journal));
+      cacheHits++;
       continue;
     }
     
@@ -157,10 +202,20 @@ export async function getJournalRanks(journals) {
     if (rank) {
       cache.set(journal, rank);
       results.set(journal, rank);
+      newQueries++;
     }
     
     // 限流
     await new Promise(r => setTimeout(r, 550));
+  }
+  
+  // 有新查询时持久化缓存
+  if (newQueries > 0) {
+    saveCacheToFile();
+  }
+  
+  if (cacheHits > 0 || newQueries > 0) {
+    console.log(`[easyScholar] ${cacheHits} 条缓存命中, ${newQueries} 条新查询, 缓存总计 ${cache.size} 条`);
   }
   
   return results;

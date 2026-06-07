@@ -6,9 +6,10 @@
  * - 不影响现有邮件推送主流程
  * - 每个模块、每天一份独立报告文件
  * - 兼容 PubMed 论文与预印本
+ * - 自动清理过期报告（默认保留30天）
  */
 
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
+import { writeFileSync, existsSync, mkdirSync, readdirSync, unlinkSync, statSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -16,6 +17,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const REPORT_ROOT = join(__dirname, '../data/reports');
+const DEFAULT_REPORT_RETENTION_DAYS = 30;
 
 function ensureReportDir() {
   if (!existsSync(REPORT_ROOT)) {
@@ -24,13 +26,46 @@ function ensureReportDir() {
 }
 
 /**
+ * 清理过期报告文件（默认保留最近30天）
+ */
+function cleanupOldReports(retentionDays = DEFAULT_REPORT_RETENTION_DAYS) {
+  if (!existsSync(REPORT_ROOT)) return 0;
+  
+  const cutoffTime = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
+  let cleaned = 0;
+  
+  try {
+    const files = readdirSync(REPORT_ROOT);
+    for (const file of files) {
+      if (!file.endsWith('.json') && !file.endsWith('.md')) continue;
+      
+      const filePath = join(REPORT_ROOT, file);
+      try {
+        const fstat = statSync(filePath);
+        if (fstat.mtimeMs < cutoffTime) {
+          unlinkSync(filePath);
+          cleaned++;
+        }
+      } catch (e) {
+        // 跳过无法访问的文件
+      }
+    }
+    
+    if (cleaned > 0) {
+      console.log(`[报告] 清理 ${cleaned} 个过期报告文件（保留 ${retentionDays} 天）`);
+    }
+  } catch (error) {
+    console.warn('[报告] 清理过期报告失败:', error.message);
+  }
+  
+  return cleaned;
+}
+
+/**
  * 将模块名转为适合作为文件名的 slug
- * 例：'肺泡巨噬细胞-预印本' -> 'module'
- * 实际上保留中文在 Windows/Unix 都是可行的，但为了稳妥加入简单降噪
  */
 function slugifyModuleName(name) {
   if (!name) return 'module';
-  // 优先提取 ASCII 字符，若为空则退回使用原始字符串中的非空白字符
   const ascii = name.replace(/[^\x00-\x7F]+/g, '').trim();
   const base = ascii.length > 0 ? ascii : name;
   return base
@@ -166,6 +201,7 @@ function buildMarkdownReport({ date, moduleName, papers, isFallback, fallbackYea
 
 /**
  * 保存一次运行的报告（JSON + Markdown）
+ * 同时清理过期报告
  */
 export async function saveRunReport({ moduleName, date, papers, isFallback = false, fallbackYear = null }) {
   if (!papers || papers.length === 0) return;
@@ -175,6 +211,9 @@ export async function saveRunReport({ moduleName, date, papers, isFallback = fal
   const slug = slugifyModuleName(moduleName);
 
   ensureReportDir();
+
+  // 先清理过期报告
+  cleanupOldReports();
 
   const baseName = `${dateForFile}__${slug || 'module'}`;
   const jsonPath = join(REPORT_ROOT, `${baseName}.json`);
@@ -191,4 +230,3 @@ export async function saveRunReport({ moduleName, date, papers, isFallback = fal
     console.error('[报告] 保存报告失败:', error.message);
   }
 }
-
