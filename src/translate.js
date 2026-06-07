@@ -115,27 +115,107 @@ async function translateKeywordsBatch(keywords) {
 }
 
 /**
+ * 从 LLM 翻译结果中智能拆分标题和摘要
+ * 支持多种分隔格式：标题/摘要、Title/Abstract、数字编号等
+ */
+function parseTranslatedResult(translated, originalTitle, originalAbstract) {
+  let titleZh = '';
+  let abstractZh = '';
+
+  // 策略1: 按"标题"和"摘要"关键词拆分（中英文冒号都支持）
+  const patterns = [
+    // 中文格式：标题：...  摘要：...
+    { title: /标题[：:]\s*([\s\S]+?)(?=\n\s*摘要[：:]|\n\s*Abstract[：:]|$)/i, abs: /摘要[：:]\s*([\s\S]+)/i },
+    // 英文格式：Title: ...  Abstract: ...
+    { title: /Title[：:]\s*([\s\S]+?)(?=\n\s*Abstract[：:]|\n\s*摘要[：:]|$)/i, abs: /Abstract[：:]\s*([\s\S]+)/i },
+    // 【标题】...  【摘要】... 格式
+    { title: /[【\[]标题[】\]]\s*([\s\S]+?)(?=[【\[]摘要[】\]]|$)/, abs: /[【\[]摘要[】\]]\s*([\s\S]+)/ },
+    // 1. 标题 ... 2. 摘要 ... 格式
+    { title: /1[.、)\s]+([\s\S]+?)(?=2[.、)\s]+|$)/, abs: /2[.、)\s]+([\s\S]+)/ },
+  ];
+
+  for (const { title: tRe, abs: aRe } of patterns) {
+    const tm = translated.match(tRe);
+    const am = translated.match(aRe);
+    if (tm && am) {
+      titleZh = tm[1].trim();
+      abstractZh = am[1].trim();
+      break;
+    }
+    // 只匹配到标题，没有摘要标记
+    if (tm && !am) {
+      titleZh = tm[1].trim();
+    }
+  }
+
+  // 策略2: 如果都没匹配到，按换行数量判断（摘要通常比标题长很多）
+  if (!titleZh && !abstractZh) {
+    const doubleNewline = translated.indexOf('\n\n');
+    if (doubleNewline > 0 && doubleNewline < 200) {
+      // 第一个双换行前是标题，后面是摘要
+      titleZh = translated.slice(0, doubleNewline).trim();
+      abstractZh = translated.slice(doubleNewline + 2).trim();
+    } else {
+      // 单换行分割
+      const firstNewline = translated.indexOf('\n');
+      if (firstNewline > 0 && firstNewline < 200) {
+        titleZh = translated.slice(0, firstNewline).trim();
+        abstractZh = translated.slice(firstNewline + 1).trim();
+      } else {
+        // 整段当作摘要（标题用原文）
+        titleZh = '';
+        abstractZh = translated.trim();
+      }
+    }
+  }
+
+  // 策略3: 根据长度合理性校验
+  // 标题通常 < 150 字，摘要 > 50 字
+  if (titleZh.length > 300 && !abstractZh) {
+    // 可能标题和摘要没有被正确拆分，整个都当作摘要
+    abstractZh = titleZh;
+    titleZh = '';
+  }
+
+  // 回退：没有解析出标题就用原文
+  if (!titleZh) titleZh = originalTitle;
+  if (!abstractZh) abstractZh = originalAbstract;
+
+  return { titleZh, abstractZh };
+}
+
+/**
  * 翻译论文信息
  */
 export async function translatePaper(paper) {
   console.log(`[翻译] 正在翻译: ${paper.title.slice(0, 50)}...`);
   
   try {
-    // 一次性翻译标题和摘要（更高效）
-    const combinedText = `标题：${paper.title}\n\n摘要：${paper.abstract}`;
-    const translatedCombined = await translateText(combinedText);
+    // 使用结构化提示词，引导 LLM 按固定格式输出
+    const prompt = `请将以下学术论文的标题和摘要翻译成中文。请严格按照以下格式输出，不要添加其他内容：
+
+标题：
+（翻译后的标题）
+
+摘要：
+（翻译后的摘要）
+
+---
+原文标题：${paper.title}
+
+原文摘要：
+${paper.abstract}`;
+
+    const translatedCombined = await translateText(prompt);
     
-    // 解析翻译结果
+    // 智能解析翻译结果
     let titleZh = paper.title;
     let abstractZh = paper.abstract;
     
-    if (translatedCombined !== combinedText) {
-      // 尝试多种格式匹配
-      const titleMatch = translatedCombined.match(/标题[：:]\s*(.+?)(?=\n\n摘要[：:]|摘要[：:]|\n\n)/s);
-      const abstractMatch = translatedCombined.match(/摘要[：:]\s*([\s\S]+)/);
-      
-      if (titleMatch) titleZh = titleMatch[1].trim();
-      if (abstractMatch) abstractZh = abstractMatch[1].trim();
+    if (translatedCombined !== prompt) {
+      const parsed = parseTranslatedResult(translatedCombined, paper.title, paper.abstract);
+      titleZh = parsed.titleZh;
+      abstractZh = parsed.abstractZh;
     }
     
     // 批量翻译关键词（一次 API 调用，替代逐个翻译）

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Papfast 配置向导 — 本地 Web 配置工具
  * =========================================
  * 使用方法: node setup-server.js
@@ -412,6 +412,8 @@ const HTML_PAGE = `<!DOCTYPE html>
         <input type="checkbox" name="smtpSecure" id="smtpSecure" checked>
         <label for="smtpSecure" style="margin:0;cursor:pointer">启用 SSL（465 端口默认开启）</label>
       </div>
+      <button type="button" class="btn-sm" style="margin-top:12px" onclick="testSmtp()">🔌 测试 SMTP 连接</button>
+      <div id="smtpTestResult" style="margin-top:8px;font-size:12px;display:none"></div>
     </div>
 
     <!-- ====== LLM 翻译配置 ====== -->
@@ -444,6 +446,8 @@ const HTML_PAGE = `<!DOCTYPE html>
         <input type="checkbox" name="llmEnabled" id="llmEnabled" checked>
         <label for="llmEnabled" style="margin:0;cursor:pointer">启用翻译（关闭则跳过摘要翻译）</label>
       </div>
+      <button type="button" class="btn-sm" style="margin-top:12px" onclick="testLlm()">🤖 测试 LLM 连接</button>
+      <div id="llmTestResult" style="margin-top:8px;font-size:12px;display:none"></div>
     </div>
 
     <!-- ====== 期刊等级查询 ====== -->
@@ -1297,6 +1301,83 @@ function applyPreset(name, btn) {
 addModule();
 
 // ============================================================
+//  连接测试
+// ============================================================
+
+async function testSmtp() {
+  const resultEl = document.getElementById('smtpTestResult');
+  resultEl.style.display = 'block';
+  resultEl.style.color = '#ffb74d';
+  resultEl.textContent = '⏳ 正在测试 SMTP 连接...';
+
+  const host = document.getElementById('smtpHost').value.trim();
+  const port = parseInt(document.getElementById('smtpPort').value) || 465;
+  const user = document.getElementById('smtpUser').value.trim();
+  const pass = document.getElementById('smtpPass').value;
+  const secure = document.getElementById('smtpSecure').checked;
+
+  if (!host || !user || !pass) {
+    resultEl.style.color = '#ff5252';
+    resultEl.textContent = '❌ 请先填写 SMTP 服务器、邮箱和授权码';
+    return;
+  }
+
+  try {
+    const res = await fetch('/test-smtp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ host, port, user, pass, secure })
+    });
+    const data = await res.json();
+    if (data.success) {
+      resultEl.style.color = '#38ef7d';
+      resultEl.textContent = '✅ SMTP 连接成功！邮件发送正常';
+    } else {
+      resultEl.style.color = '#ff5252';
+      resultEl.textContent = '❌ ' + (data.error || '连接失败');
+    }
+  } catch (err) {
+    resultEl.style.color = '#ff5252';
+    resultEl.textContent = '❌ 请求失败: ' + err.message;
+  }
+}
+
+async function testLlm() {
+  const resultEl = document.getElementById('llmTestResult');
+  resultEl.style.display = 'block';
+  resultEl.style.color = '#ffb74d';
+  resultEl.textContent = '⏳ 正在测试 LLM API 连接...';
+
+  const baseUrl = document.getElementById('llmBaseUrl').value.trim();
+  const apiKey = document.getElementById('llmApiKey').value;
+  const model = document.getElementById('llmModel').value.trim();
+
+  if (!baseUrl || !apiKey) {
+    resultEl.style.color = '#ff5252';
+    resultEl.textContent = '❌ 请先填写 API 地址和 API Key';
+    return;
+  }
+
+  try {
+    const res = await fetch('/test-llm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ baseUrl, apiKey, model })
+    });
+    const data = await res.json();
+    if (data.success) {
+      resultEl.style.color = '#38ef7d';
+      resultEl.textContent = '✅ LLM API 连接成功！模型: ' + (data.model || model);
+    } else {
+      resultEl.style.color = '#ff5252';
+      resultEl.textContent = '❌ ' + (data.error || '连接失败');
+    }
+  } catch (err) {
+    resultEl.style.color = '#ff5252';
+    resultEl.textContent = '❌ 请求失败: ' + err.message;
+  }
+}
+// ============================================================
 //  表单提交
 // ============================================================
 document.getElementById('configForm').addEventListener('submit', async function(e) {
@@ -1433,6 +1514,69 @@ const server = http.createServer((req, res) => {
     });
     return;
   }
+
+  // ======================== 测试 SMTP 连接 ========================
+  if (method === 'POST' && pathname === '/test-smtp') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const { host, port, user, pass, secure } = JSON.parse(body);
+        const nodemailer = require('nodemailer');
+        const transporter = nodemailer.createTransport({
+          host, port, secure,
+          auth: { user, pass },
+          connectionTimeout: 10000,
+          greetingTimeout: 10000
+        });
+        await transporter.verify();
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (err) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
+  // ======================== 测试 LLM API 连接 ========================
+  if (method === 'POST' && pathname === '/test-llm') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const { baseUrl, apiKey, model } = JSON.parse(body);
+        const url = baseUrl.replace(/\/+$/, '') + '/chat/completions';
+        const llmRes = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: model || 'glm-4-flash',
+            messages: [{ role: 'user', content: '你好，请回复"连接成功"' }],
+            max_tokens: 20
+          }),
+          signal: AbortSignal.timeout(15000)
+        });
+        if (!llmRes.ok) {
+          const errText = await llmRes.text().catch(() => '');
+          throw new Error(`API 返回 ${llmRes.status}: ${errText.slice(0, 100)}`);
+        }
+        const data = await llmRes.json();
+        const reply = data.choices?.[0]?.message?.content || '未知响应';
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, model: data.model || model, reply }));
+      } catch (err) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
 
   res.writeHead(404);
   res.end('Not Found');
