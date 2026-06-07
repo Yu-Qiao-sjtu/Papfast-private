@@ -3,13 +3,14 @@
  * Papfast - 多模块论文订阅工具
  * 
  * 支持多个检索模块，每个模块独立关键词和收件人
- * 支持数据源：PubMed, bioRxiv, medRxiv（仅翻译，不深度分析）（仅翻译，不深度分析）（仅翻译，不深度分析）
+ * 支持数据源：PubMed, bioRxiv, medRxiv（仅翻译，不深度分析）
  * 
  * 预印本处理：仅翻译标题和摘要，不执行深度分析
  * 
  * 去重机制：
  * 1. 查询阶段：filterUnsentPapers() 过滤已推送论文
  * 2. 发送前：preRecordPapers() 预先记录，确保不重复
+ * 3. 运行时池：同一模块内多关键词搜到同一论文只处理一次
  */
 
 import { fetchFromPubMed, fetchFromPubMedSinceYear, filterPapersWithAbstract } from './fetch.js';
@@ -22,33 +23,13 @@ import { saveRunReport } from './report.js';
 import { readFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import config from './config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-/**
- * 替换配置中的环境变量占位符
- */
-function resolveConfig(configStr) {
-  return configStr.replace(/\$\{([^}]+)\}/g, (match, key) => {
-    const value = process.env[key];
-    if (!value) {
-      console.warn(`[警告] 环境变量 ${key} 未设置`);
-      return match;
-    }
-    return value;
-  });
-}
-
-// 加载配置：优先使用 config.local.json（本地测试），否则使用 config.json（GitHub Actions）
-const localConfigPath = join(__dirname, '../config/config.local.json');
-let configPath = join(__dirname, '../config/config.json');
-if (existsSync(localConfigPath)) {
-  configPath = localConfigPath;
-  console.log('[本地] 使用 config.local.json');
-}
-
 // 首次运行检测：检查本地配置文件是否存在且不含占位符
+const localConfigPath = join(__dirname, '../config/config.local.json');
 const configTextPlaceholder = existsSync(localConfigPath) ? readFileSync(localConfigPath, 'utf-8') : '';
 if (!existsSync(localConfigPath) || configTextPlaceholder.includes('YOUR_') || configTextPlaceholder.includes('yourname@')) {
   console.log('');
@@ -63,8 +44,29 @@ if (!existsSync(localConfigPath) || configTextPlaceholder.includes('YOUR_') || c
   process.exit(0);
 }
 
-const configText = readFileSync(configPath, 'utf-8');
-const config = JSON.parse(resolveConfig(configText));
+/**
+ * 带重试的邮件发送（最多重试3次）
+ */
+async function sendEmailWithRetry(papersToSend, moduleName, recipients, isFallback, fallbackYear, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await sendPaperEmail(papersToSend, moduleName, recipients, isFallback, fallbackYear);
+      console.log(`\n[完成] ${moduleName} 处理完毕`);
+      return;
+    } catch (error) {
+      console.error(`[邮件] ${moduleName} 发送失败 (第${attempt}次):`, error.message);
+      if (attempt < maxRetries) {
+        const delay = attempt * 5000;
+        console.log(`[邮件] ${delay / 1000}秒后重试...`);
+        await new Promise(r => setTimeout(r, delay));
+      } else {
+        console.error(`[邮件] ${moduleName} 已重试${maxRetries}次，放弃发送`);
+        // 注意：论文已被 preRecordPapers 记录，不会重复推送
+        // 这是预期行为，避免重复发送
+      }
+    }
+  }
+}
 
 /**
  * 去重论文（内部去重 + 已推送去重）
@@ -261,14 +263,8 @@ async function processModule(module) {
     fallbackYear
   });
 
-  try {
-    await sendPaperEmail(papersToSend, module.name, module.recipients, isFallback, fallbackYear);
-    console.log(`\n[完成] ${module.name} 处理完毕`);
-  } catch (error) {
-    console.error(`[邮件] ${module.name} 发送失败:`, error.message);
-    // 注意：即使邮件发送失败，论文已被记录，不会重复推送
-    // 这是预期行为，避免重复发送
-  }
+  // 带重试的邮件发送
+  await sendEmailWithRetry(papersToSend, module.name, module.recipients, isFallback, fallbackYear);
 }
 
 async function main() {

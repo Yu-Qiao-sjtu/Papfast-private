@@ -1,32 +1,7 @@
 import { readFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-/**
- * 替换配置中的环境变量占位符
- */
-function resolveConfig(configStr) {
-  return configStr.replace(/\$\{([^}]+)\}/g, (match, key) => {
-    const value = process.env[key];
-    if (!value) {
-      console.warn(`[警告] 环境变量 ${key} 未设置`);
-      return match;
-    }
-    return value;
-  });
-}
-
-// 加载配置：优先使用 config.local.json（本地测试），否则使用 config.json（GitHub Actions）
-let configPath = join(__dirname, '../config/config.json');
-if (existsSync(join(__dirname, '../config/config.local.json'))) {
-  configPath = join(__dirname, '../config/config.local.json');
-}
-
-const configText = readFileSync(configPath, 'utf-8');
-const config = JSON.parse(resolveConfig(configText));
+import config from './config.js';
 
 /**
  * 使用智谱 GLM 进行翻译
@@ -104,6 +79,42 @@ export async function translateText(text, sourceLang = 'en', targetLang = 'zh-CN
 }
 
 /**
+ * 批量翻译关键词（一次 API 调用翻译所有关键词，节省请求次数）
+ */
+async function translateKeywordsBatch(keywords) {
+  if (!keywords || keywords.length === 0) return [];
+  
+  const batchText = keywords.map((kw, i) => `${i + 1}. ${kw}`).join('\n');
+  const prompt = `将以下学术关键词翻译成中文，保持编号格式，每行一个翻译结果，不要解释：\n\n${batchText}`;
+  
+  try {
+    const res = await translateWithGLM(prompt);
+    
+    if (res === prompt) return [...keywords]; // 翻译失败，返回原文
+    
+    // 解析翻译结果
+    const lines = res.split('\n').filter(l => l.trim());
+    const translated = [];
+    for (const line of lines) {
+      // 去掉编号前缀（如 "1. " 或 "1、"）
+      const cleaned = line.replace(/^\d+[\.\、]\s*/, '').trim();
+      if (cleaned) translated.push(cleaned);
+    }
+    
+    // 如果解析出的数量不匹配，返回原文
+    if (translated.length !== keywords.length) {
+      console.warn(`[翻译] 关键词数量不匹配 (期望${keywords.length}, 得到${translated.length})，使用原文`);
+      return [...keywords];
+    }
+    
+    return translated;
+  } catch (error) {
+    console.error('[翻译] 批量翻译关键词失败:', error.message);
+    return [...keywords];
+  }
+}
+
+/**
  * 翻译论文信息
  */
 export async function translatePaper(paper) {
@@ -119,20 +130,17 @@ export async function translatePaper(paper) {
     let abstractZh = paper.abstract;
     
     if (translatedCombined !== combinedText) {
-      const titleMatch = translatedCombined.match(/标题[：:]\s*(.+?)(?=\n\n摘要[：:]|摘要[：:])/s);
-      const abstractMatch = translatedCombined.match(/摘要[：:]\s*(.+)/s);
+      // 尝试多种格式匹配
+      const titleMatch = translatedCombined.match(/标题[：:]\s*(.+?)(?=\n\n摘要[：:]|摘要[：:]|\n\n)/s);
+      const abstractMatch = translatedCombined.match(/摘要[：:]\s*([\s\S]+)/);
       
       if (titleMatch) titleZh = titleMatch[1].trim();
       if (abstractMatch) abstractZh = abstractMatch[1].trim();
     }
     
-    // 翻译关键词
-    const keywordsZh = [];
-    for (const kw of paper.keywords.slice(0, 5)) {
-      const translated = await translateText(kw);
-      keywordsZh.push(translated);
-      await new Promise(r => setTimeout(r, 100));
-    }
+    // 批量翻译关键词（一次 API 调用，替代逐个翻译）
+    const keywordsToTranslate = paper.keywords.slice(0, 5);
+    const keywordsZh = await translateKeywordsBatch(keywordsToTranslate);
     
     return {
       ...paper,

@@ -3,36 +3,8 @@
  * 使用 LLM 进行科研文献结构拆解
  */
 
-import { readFileSync, existsSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 import { SYSTEM_PROMPT, generateAnalysisPrompt } from './prompts/literature-analysis.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-/**
- * 替换配置中的环境变量占位符
- */
-function resolveConfig(configStr) {
-  return configStr.replace(/\$\{([^}]+)\}/g, (match, key) => {
-    const value = process.env[key];
-    if (!value) {
-      console.warn(`[警告] 环境变量 ${key} 未设置`);
-      return match;
-    }
-    return value;
-  });
-}
-
-// 加载配置：优先使用 config.local.json（本地测试），否则使用 config.json（GitHub Actions）
-let configPath = join(__dirname, '../config/config.json');
-if (existsSync(join(__dirname, '../config/config.local.json'))) {
-  configPath = join(__dirname, '../config/config.local.json');
-}
-
-const configText = readFileSync(configPath, 'utf-8');
-const config = JSON.parse(resolveConfig(configText));
+import config from './config.js';
 
 /**
  * 调用 LLM API 进行分析

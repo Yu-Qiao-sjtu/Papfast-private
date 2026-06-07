@@ -3,36 +3,17 @@
  * 获取期刊影响因子和等级信息
  */
 
-import { readFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import config from './config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const EASYSCHOLAR_API = 'https://www.easyscholar.cc/open/getPublicationRank';
 
-// 优先读取 config.local.json，其次 config.json，最后环境变量
-function loadEasyScholarKey() {
-  const localConfig = join(__dirname, '../config/config.local.json');
-  const defaultConfig = join(__dirname, '../config/config.json');
-
-  if (existsSync(localConfig)) {
-    try {
-      const cfg = JSON.parse(readFileSync(localConfig, 'utf-8'));
-      if (cfg.easyScholarKey) return cfg.easyScholarKey;
-    } catch {}
-  }
-  if (existsSync(defaultConfig)) {
-    try {
-      const cfg = JSON.parse(readFileSync(defaultConfig, 'utf-8'));
-      if (cfg.easyScholarKey) return cfg.easyScholarKey;
-    } catch {}
-  }
-  return process.env.EASYSCHOLAR_KEY || '';
-}
-
-const SECRET_KEY = loadEasyScholarKey();
+// 从公共配置模块获取 EasyScholar Key
+const SECRET_KEY = config.easyScholarKey || process.env.EASYSCHOLAR_KEY || '';
 
 // 请求限流：每秒最多2次
 let lastRequestTime = 0;

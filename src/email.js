@@ -1,34 +1,6 @@
-﻿import nodemailer from 'nodemailer';
-import { readFileSync, existsSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import nodemailer from 'nodemailer';
 import { formatJournalBadge } from './wechat-style.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-/**
- * 替换配置中的环境变量占位符
- */
-function resolveConfig(configStr) {
-  return configStr.replace(/\$\{([^}]+)\}/g, (match, key) => {
-    const value = process.env[key];
-    if (!value) {
-      console.warn(`[警告] 环境变量 ${key} 未设置`);
-      return match;
-    }
-    return value;
-  });
-}
-
-// 加载配置：优先使用 config.local.json（本地测试），否则使用 config.json（GitHub Actions）
-let configPath = join(__dirname, '../config/config.json');
-if (existsSync(join(__dirname, '../config/config.local.json'))) {
-  configPath = join(__dirname, '../config/config.local.json');
-}
-
-const configText = readFileSync(configPath, 'utf-8');
-const config = JSON.parse(resolveConfig(configText));
+import config from './config.js';
 
 // 创建邮件传输器
 const transporter = nodemailer.createTransport({
@@ -188,7 +160,7 @@ export async function sendTestEmail() {
         <li>发件邮箱: ${config.email.from}</li>
         <li>收件邮箱: ${config.email.to}</li>
       </ul>
-      <p>接下来将开始定期推送肺泡巨噬细胞相关论文。</p>
+      <p>接下来将开始定期推送论文。</p>
     `
   };
   

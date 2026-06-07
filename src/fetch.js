@@ -1,36 +1,37 @@
 import fetch from 'node-fetch';
 import { parseString } from 'xml2js';
 import { promisify } from 'util';
-import { readFileSync, existsSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import config from './config.js';
 
 const parseXml = promisify(parseString);
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 /**
- * 替换配置中的环境变量占位符
+ * 带重试的 fetch 请求（PubMed API 经常 503）
  */
-function resolveConfig(configStr) {
-  return configStr.replace(/\$\{([^}]+)\}/g, (match, key) => {
-    const value = process.env[key];
-    if (!value) {
-      console.warn(`[警告] 环境变量 ${key} 未设置`);
-      return match;
+async function fetchWithRetry(url, maxRetries = 3, delayMs = 2000) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) return res;
+      
+      if (res.status === 503 || res.status === 429) {
+        console.warn(`[PubMed] API 返回 ${res.status}，第${attempt}次重试...`);
+        if (attempt < maxRetries) {
+          await new Promise(r => setTimeout(r, delayMs * attempt));
+          continue;
+        }
+      }
+      return res; // 其他错误直接返回
+    } catch (error) {
+      if (attempt < maxRetries) {
+        console.warn(`[PubMed] 网络错误，第${attempt}次重试: ${error.message}`);
+        await new Promise(r => setTimeout(r, delayMs * attempt));
+      } else {
+        throw error;
+      }
     }
-    return value;
-  });
+  }
 }
-
-// 加载配置：优先使用 config.local.json（本地测试），否则使用 config.json（GitHub Actions）
-let configPath = join(__dirname, '../config/config.json');
-if (existsSync(join(__dirname, '../config/config.local.json'))) {
-  configPath = join(__dirname, '../config/config.local.json');
-}
-
-const configText = readFileSync(configPath, 'utf-8');
-const config = JSON.parse(resolveConfig(configText));
 
 /**
  * 从指定年份开始搜索论文（用于回退机制）
@@ -46,7 +47,7 @@ export async function fetchFromPubMedSinceYear(keyword, startYear = 2020, maxRes
   const searchUrl = `${baseUrl}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(keyword)}&datetype=pdat&mindate=${startDate}&maxdate=${endDate}&retmax=${maxResults}&retmode=json&sort=pub_date`;
   
   console.log(`[PubMed] 搜索 ${startYear} 年以来: ${keyword}`);
-  const searchRes = await fetch(searchUrl);
+  const searchRes = await fetchWithRetry(searchUrl);
   const searchData = await searchRes.json();
   
   const ids = searchData.esearchresult?.idlist || [];
@@ -59,7 +60,7 @@ export async function fetchFromPubMedSinceYear(keyword, startYear = 2020, maxRes
   
   // 获取详情
   const fetchUrl = `${baseUrl}/efetch.fcgi?db=pubmed&id=${ids.join(',')}&retmode=xml`;
-  const fetchRes = await fetch(fetchUrl);
+  const fetchRes = await fetchWithRetry(fetchUrl);
   const xmlText = await fetchRes.text();
   
   const result = await parseXml(xmlText);
@@ -79,13 +80,11 @@ export async function fetchFromPubMed(keyword, daysBack = 1, maxResults = 20) {
   const startDate = new Date(today);
   startDate.setDate(startDate.getDate() - daysBack);
   
-  const dateRange = `${startDate.toISOString().slice(0, 10).replace(/-/g, '/')}:${today.toISOString().slice(0, 10).replace(/-/g, '/')}`;
-  
   // 搜索
   const searchUrl = `${baseUrl}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(keyword)}&datetype=pdat&mindate=${startDate.toISOString().slice(0, 10)}&maxdate=${today.toISOString().slice(0, 10)}&retmax=${maxResults}&retmode=json`;
   
   console.log(`[PubMed] 搜索: ${keyword}`);
-  const searchRes = await fetch(searchUrl);
+  const searchRes = await fetchWithRetry(searchUrl);
   const searchData = await searchRes.json();
   
   const ids = searchData.esearchresult?.idlist || [];
@@ -98,7 +97,7 @@ export async function fetchFromPubMed(keyword, daysBack = 1, maxResults = 20) {
   
   // 获取详情
   const fetchUrl = `${baseUrl}/efetch.fcgi?db=pubmed&id=${ids.join(',')}&retmode=xml`;
-  const fetchRes = await fetch(fetchUrl);
+  const fetchRes = await fetchWithRetry(fetchUrl);
   const xmlText = await fetchRes.text();
   
   const result = await parseXml(xmlText);
@@ -256,11 +255,4 @@ export async function fetchAllPapers() {
   
   console.log(`[总计] 获取 ${uniquePapers.length} 篇唯一论文`);
   return uniquePapers;
-}
-
-// 测试运行
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  fetchAllPapers().then(papers => {
-    console.log(JSON.stringify(papers.slice(0, 2), null, 2));
-  });
 }
